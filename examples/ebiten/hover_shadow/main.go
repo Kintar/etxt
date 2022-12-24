@@ -7,14 +7,14 @@ import "image"
 import "image/color"
 
 import "github.com/hajimehoshi/ebiten/v2"
-import "github.com/tinne26/etxt"
+import "github.com/Kintar/etxt"
 import "golang.org/x/image/math/fixed"
 
 const HoverText = "Hover me please!"
 
 type Game struct {
 	txtRenderer *etxt.Renderer
-	focus float64
+	focus       float64
 }
 
 func (self *Game) Layout(w int, h int) (int, int) { return w, h }
@@ -24,16 +24,20 @@ func (self *Game) Update() error {
 	targetArea := self.txtRenderer.SelectionRect(HoverText)
 	w, h := ebiten.WindowSize()
 	tw, th := targetArea.Width.Ceil(), targetArea.Height.Ceil()
-	tRect := image.Rect(w/2 - tw/2, h/2 - th/2, w/2 + tw/2, h/2 + th/2)
+	tRect := image.Rect(w/2-tw/2, h/2-th/2, w/2+tw/2, h/2+th/2)
 
 	// determine if we are inside or outside the hover
 	// area and adjust the "focus" level
 	if image.Pt(ebiten.CursorPosition()).In(tRect) {
 		self.focus += 0.06
-		if self.focus > 1.0 { self.focus = 1.0 }
+		if self.focus > 1.0 {
+			self.focus = 1.0
+		}
 	} else {
 		self.focus -= 0.06
-		if self.focus < 0.0 { self.focus = 0.0 }
+		if self.focus < 0.0 {
+			self.focus = 0.0
+		}
 	}
 	return nil
 }
@@ -43,7 +47,7 @@ func (self *Game) Draw(screen *ebiten.Image) {
 	const MaxOffsetY = 4 // max shadow y offset
 
 	// dark background
-	screen.Fill(color.RGBA{ 0, 0, 0, 255 })
+	screen.Fill(color.RGBA{0, 0, 0, 255})
 
 	// draw text
 	w, h := screen.Size()
@@ -69,11 +73,13 @@ func main() {
 
 	// parse font
 	font, fontName, err := etxt.ParseFontFrom(os.Args[1])
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Font loaded: %s\n", fontName)
 
 	// create cache
-	cache := etxt.NewDefaultCache(1024*1024*1024) // 1GB cache
+	cache := etxt.NewDefaultCache(1024 * 1024 * 1024) // 1GB cache
 
 	// create and configure renderer
 	renderer := etxt.NewStdRenderer()
@@ -85,6 +91,8 @@ func main() {
 	// run the game
 	ebiten.SetWindowTitle("etxt/examples/ebiten/hover_shadow")
 	ebiten.SetWindowSize(640, 480)
-	err = ebiten.RunGame(&Game { renderer, 0.0 })
-	if err != nil { log.Fatal(err) }
+	err = ebiten.RunGame(&Game{renderer, 0.0})
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -8,8 +8,9 @@ import "golang.org/x/image/math/fixed"
 import "golang.org/x/image/font/sfnt"
 
 // cboxObox computes two bounding boxes for the given segments:
-//  - The [control box], equivalent to sfnt.Segments.Bounds().
-//  - The "ON" contour points bounding box.
+//   - The [control box], equivalent to sfnt.Segments.Bounds().
+//   - The "ON" contour points bounding box.
+//
 // These two can be used by CBoxBadness to determine if the CBox
 // matches the real bounding box or not (though the actual bounding
 // box can't be easily determined if the two are different).
@@ -17,33 +18,33 @@ import "golang.org/x/image/font/sfnt"
 // [control box]: https://freetype.org/freetype2/docs/glyphs/glyphs-6.html#section-2
 func cboxObox(segments sfnt.Segments) (fixed.Rectangle26_6, fixed.Rectangle26_6) {
 	// create boxes
-	cbox := fixed.Rectangle26_6 {
-		Min: fixed.Point26_6 {
+	cbox := fixed.Rectangle26_6{
+		Min: fixed.Point26_6{
 			X: fixed.Int26_6(0x7FFFFFFF),
 			Y: fixed.Int26_6(0x7FFFFFFF),
 		},
-		Max: fixed.Point26_6 {
+		Max: fixed.Point26_6{
 			X: fixed.Int26_6(-0x80000000),
 			Y: fixed.Int26_6(-0x80000000),
 		},
 	}
-	obox := fixed.Rectangle26_6 {
-		Min: fixed.Point26_6 { X: cbox.Min.X, Y: cbox.Min.Y },
-		Max: fixed.Point26_6 { X: cbox.Max.X, Y: cbox.Max.Y },
+	obox := fixed.Rectangle26_6{
+		Min: fixed.Point26_6{X: cbox.Min.X, Y: cbox.Min.Y},
+		Max: fixed.Point26_6{X: cbox.Max.X, Y: cbox.Max.Y},
 	}
 
 	// iterate segments
 	for _, segment := range segments {
 		switch segment.Op {
 		case sfnt.SegmentOpMoveTo, sfnt.SegmentOpLineTo:
-			adjustBoxLimits(&cbox, segment.Args[0 : 1])
-			adjustBoxLimits(&obox, segment.Args[0 : 1])
+			adjustBoxLimits(&cbox, segment.Args[0:1])
+			adjustBoxLimits(&obox, segment.Args[0:1])
 		case sfnt.SegmentOpQuadTo:
-			adjustBoxLimits(&cbox, segment.Args[0 : 2])
-			adjustBoxLimits(&obox, segment.Args[1 : 2])
+			adjustBoxLimits(&cbox, segment.Args[0:2])
+			adjustBoxLimits(&obox, segment.Args[1:2])
 		case sfnt.SegmentOpCubeTo:
-			adjustBoxLimits(&cbox, segment.Args[0 : 3])
-			adjustBoxLimits(&obox, segment.Args[2 : 3])
+			adjustBoxLimits(&cbox, segment.Args[0:3])
+			adjustBoxLimits(&obox, segment.Args[2:3])
 		default:
 			panic("unexpected segment.Op")
 		}
@@ -53,10 +54,18 @@ func cboxObox(segments sfnt.Segments) (fixed.Rectangle26_6, fixed.Rectangle26_6)
 
 func adjustBoxLimits(box *fixed.Rectangle26_6, points []fixed.Point26_6) {
 	for _, point := range points {
-		if box.Max.X < point.X { box.Max.X = point.X }
-		if box.Min.X > point.X { box.Min.X = point.X }
-		if box.Max.Y < point.Y { box.Max.Y = point.Y }
-		if box.Min.Y > point.Y { box.Min.Y = point.Y }
+		if box.Max.X < point.X {
+			box.Max.X = point.X
+		}
+		if box.Min.X > point.X {
+			box.Min.X = point.X
+		}
+		if box.Max.Y < point.Y {
+			box.Max.Y = point.Y
+		}
+		if box.Min.Y > point.Y {
+			box.Min.Y = point.Y
+		}
 	}
 }
 
@@ -77,10 +86,10 @@ func adjustBoxLimits(box *fixed.Rectangle26_6, points []fixed.Point26_6) {
 // [control box]: https://freetype.org/freetype2/docs/glyphs/glyphs-6.html#section-2
 func CBoxBadness(segments sfnt.Segments) (fixed.Int26_6, fixed.Int26_6, fixed.Int26_6, fixed.Int26_6) {
 	cbox, obox := cboxObox(segments)
-	leftBadness   := -cbox.Min.X + cbox.Min.X
-	rightBadness  :=  cbox.Max.X - obox.Max.X
-	topBadness    := -cbox.Min.Y + obox.Min.Y
-	bottomBadness :=  cbox.Max.Y - obox.Max.Y
+	leftBadness := -cbox.Min.X + cbox.Min.X
+	rightBadness := cbox.Max.X - obox.Max.X
+	topBadness := -cbox.Min.Y + obox.Min.Y
+	bottomBadness := cbox.Max.Y - obox.Max.Y
 	return leftBadness, rightBadness, topBadness, bottomBadness
 }
 
@@ -92,14 +101,20 @@ func CBoxBadness(segments sfnt.Segments) (fixed.Int26_6, fixed.Int26_6, fixed.In
 //
 // The buffer can be nil.
 func RuneAscent(font *sfnt.Font, codePoint rune, buffer *sfnt.Buffer) (sfnt.Units, float64, error) {
-	if buffer == nil { buffer = &sfnt.Buffer{} }
+	if buffer == nil {
+		buffer = &sfnt.Buffer{}
+	}
 	unitSize := fixed.Int26_6(font.UnitsPerEm())
 	glyphIndex, err := font.GlyphIndex(buffer, codePoint)
-	if err != nil { return 0, 0, err }
+	if err != nil {
+		return 0, 0, err
+	}
 	contours, err := font.LoadGlyph(buffer, glyphIndex, unitSize, nil)
-	if err != nil { return 0, 0, err }
-	ascentUnits  := -contours.Bounds().Min.Y
-	emProportion := float64(ascentUnits)/float64(unitSize)
+	if err != nil {
+		return 0, 0, err
+	}
+	ascentUnits := -contours.Bounds().Min.Y
+	emProportion := float64(ascentUnits) / float64(unitSize)
 	return sfnt.Units(ascentUnits), emProportion, nil
 }
 

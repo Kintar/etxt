@@ -10,8 +10,8 @@ import "unicode/utf8"
 // order or in reverse, which is needed for some combinations of text
 // direction and horizontal alignments during rendering.
 type strIterator struct {
-	str string
-	index int
+	str        string
+	index      int
 	regression int // -1 if not reverse
 }
 
@@ -19,12 +19,16 @@ type strIterator struct {
 func (self *strIterator) Next() rune {
 	if self.regression == -1 {
 		codePoint, size := utf8.DecodeRuneInString(self.str[self.index:])
-		if size == 0 { return -1 } // reached end
+		if size == 0 {
+			return -1
+		} // reached end
 		self.index += size
 		return codePoint
 	} else { // reverse order
 		iterPoint := (self.index - self.regression)
-		if iterPoint <= 0 { return -1 } // reached end
+		if iterPoint <= 0 {
+			return -1
+		} // reached end
 		codePoint, size := utf8.DecodeLastRuneInString(self.str[:iterPoint])
 		self.regression += size
 		if self.regression >= self.index {
@@ -56,19 +60,27 @@ func (self *strIterator) LineSlide() {
 func (self *strIterator) UntilNextLineBreak() string {
 	if self.regression == -1 {
 		start := self.index
-		if start >= len(self.str) { return "" }
+		if start >= len(self.str) {
+			return ""
+		}
 		for index, codePoint := range self.str[start:] {
-			if codePoint == '\n' { return self.str[start : (start + index)] }
+			if codePoint == '\n' {
+				return self.str[start:(start + index)]
+			}
 		}
 		return self.str[start:]
 	} else { // reverse order
 		iterPoint := (self.index - self.regression)
-		if iterPoint <= 0 { return "" } // reached end
+		if iterPoint <= 0 {
+			return ""
+		} // reached end
 		start := iterPoint
-		curr  := start
+		curr := start
 		for curr >= 1 {
 			codePoint, size := utf8.DecodeLastRuneInString(self.str[:curr])
-			if codePoint == '\n' { return self.str[curr:start] }
+			if codePoint == '\n' {
+				return self.str[curr:start]
+			}
 			curr -= size
 		}
 		return self.str[:start]
@@ -76,29 +88,32 @@ func (self *strIterator) UntilNextLineBreak() string {
 }
 
 func newStrIterator(text string, reverse bool) strIterator {
-	iter := strIterator { str: text, index: 0, regression: -1 }
-	if reverse { iter.LineSlide() }
+	iter := strIterator{str: text, index: 0, regression: -1}
+	if reverse {
+		iter.LineSlide()
+	}
 	return iter
 }
 
-
 type glyphsIterator struct {
 	glyphs []GlyphIndex
-	index int // -N if reverse
+	index  int // -N if reverse
 }
 
 // The bool indicates if we already reached the end. The returned
 // GlyphIndex must be ignored if bool == true
 func (self *glyphsIterator) Next() (GlyphIndex, bool) {
-	index  := self.index
+	index := self.index
 	glyphs := self.glyphs
 	if index >= 0 {
-		if index >= len(glyphs) { return 0, true }
+		if index >= len(glyphs) {
+			return 0, true
+		}
 		glyphIndex := glyphs[index]
 		self.index = index + 1
 		return glyphIndex, false
 	} else { // self.index < 0 (reverse mode)
-		glyphIndex := glyphs[-index - 1]
+		glyphIndex := glyphs[-index-1]
 
 		// update index
 		if index == -1 {
@@ -112,6 +127,8 @@ func (self *glyphsIterator) Next() (GlyphIndex, bool) {
 }
 
 func newGlyphsIterator(glyphs []GlyphIndex, reverse bool) glyphsIterator {
-	if !reverse { return glyphsIterator{ glyphs, 0 } }
-	return glyphsIterator{ glyphs, -len(glyphs) }
+	if !reverse {
+		return glyphsIterator{glyphs, 0}
+	}
+	return glyphsIterator{glyphs, -len(glyphs)}
 }

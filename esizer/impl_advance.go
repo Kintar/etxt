@@ -3,7 +3,7 @@ package esizer
 import "golang.org/x/image/font"
 import "golang.org/x/image/font/sfnt"
 import "golang.org/x/image/math/fixed"
-import "github.com/tinne26/etxt/efixed"
+import "github.com/Kintar/etxt/efixed"
 
 // Like [HorzPaddingSizer], but adds the extra padding in the advance
 // instead of the kern.
@@ -12,7 +12,7 @@ import "github.com/tinne26/etxt/efixed"
 // use [HorzPaddingSizer] instead. This sizer is intended to deal with
 // modified glyphs that have actually become wider.
 type AdvancePadSizer struct {
-	buffer sfnt.Buffer
+	buffer  sfnt.Buffer
 	padding fixed.Int26_6
 }
 

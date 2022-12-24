@@ -5,7 +5,7 @@ import "image"
 import "golang.org/x/image/math/fixed"
 import "golang.org/x/image/font/sfnt"
 
-import "github.com/tinne26/etxt/efixed"
+import "github.com/Kintar/etxt/efixed"
 
 // TODO: extension of joints must be limited through special mechanisms,
 //       otherwise they can go wild on some aberrant cases
@@ -23,17 +23,17 @@ import "github.com/tinne26/etxt/efixed"
 //
 // In web API terms, the line cap is "butt" and the line joint is "miter".
 type OutlineRasterizer struct {
-	rasterizer outliner
-	onChange func(Rasterizer)
+	rasterizer     outliner
+	onChange       func(Rasterizer)
 	cacheSignature uint64
-	rectOffset image.Point
-	normOffset fixed.Point26_6
+	rectOffset     image.Point
+	normOffset     fixed.Point26_6
 }
 
 func NewOutlineRasterizer(outlineThickness float64) *OutlineRasterizer {
 	rast := &OutlineRasterizer{}
 	rast.SetThickness(outlineThickness)
-	rast.rasterizer.CurveSegmenter.SetThreshold(1/1024)
+	rast.rasterizer.CurveSegmenter.SetThreshold(1 / 1024)
 	rast.rasterizer.CurveSegmenter.SetMaxSplits(8) // TODO: store somewhere
 	rast.SetMarginFactor(2.0)
 	return rast
@@ -42,7 +42,9 @@ func NewOutlineRasterizer(outlineThickness float64) *OutlineRasterizer {
 // Satisfies the [UserCfgCacheSignature] interface.
 func (self *OutlineRasterizer) SetHighByte(value uint8) {
 	self.cacheSignature = uint64(value) << 56
-	if self.onChange != nil { self.onChange(self) }
+	if self.onChange != nil {
+		self.onChange(self)
+	}
 }
 
 // Sets the outline thickness. Values must be in the [0.1, 1024] range.
@@ -50,7 +52,9 @@ func (self *OutlineRasterizer) SetThickness(thickness float64) {
 	thickness = self.rasterizer.SetThickness(thickness)
 	self.cacheSignature &= 0xFFFFFFFFFFF00000
 	self.cacheSignature |= uint64(thickness*1024) - 1
-	if self.onChange != nil { self.onChange(self) }
+	if self.onChange != nil {
+		self.onChange(self)
+	}
 }
 
 // When two lines of the outline connect at a tight angle, the resulting
@@ -100,7 +104,7 @@ func (self *OutlineRasterizer) QuadTo(control, target fixed.Point26_6) {
 func (self *OutlineRasterizer) CubeTo(controlA, controlB, target fixed.Point26_6) {
 	cax, cay := self.fixedToFloat64Coords(controlA)
 	cbx, cby := self.fixedToFloat64Coords(controlB)
-	tx , ty  := self.fixedToFloat64Coords(target)
+	tx, ty := self.fixedToFloat64Coords(target)
 	self.rasterizer.CubeTo(cax, cay, cbx, cby, tx, ty)
 }
 
@@ -126,7 +130,7 @@ func (self *OutlineRasterizer) Rasterize(outline sfnt.Segments, fract fixed.Poin
 	// allocate glyph mask and move results from buffer
 	mask := image.NewAlpha(image.Rect(0, 0, buffer.Width, buffer.Height))
 	for i := 0; i < len(buffer.Values); i++ {
-		mask.Pix[i] = uint8(clampUnit64(buffer.Values[i])*255)
+		mask.Pix[i] = uint8(clampUnit64(buffer.Values[i]) * 255)
 	}
 
 	// translate the mask to its final position
@@ -135,7 +139,7 @@ func (self *OutlineRasterizer) Rasterize(outline sfnt.Segments, fract fixed.Poin
 }
 
 func (self *OutlineRasterizer) fixedToFloat64Coords(point fixed.Point26_6) (float64, float64) {
-	x := float64(point.X + self.normOffset.X)/64
-	y := float64(point.Y + self.normOffset.Y)/64
+	x := float64(point.X+self.normOffset.X) / 64
+	y := float64(point.Y+self.normOffset.Y) / 64
 	return x, y
 }

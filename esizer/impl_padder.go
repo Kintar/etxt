@@ -3,13 +3,13 @@ package esizer
 import "golang.org/x/image/font"
 import "golang.org/x/image/font/sfnt"
 import "golang.org/x/image/math/fixed"
-import "github.com/tinne26/etxt/efixed"
+import "github.com/Kintar/etxt/efixed"
 
 // A [Sizer] that behaves like the default one, but with a configurable
 // horizontal padding factor that's added to the kern between glyphs.
 type HorzPaddingSizer struct {
 	horzPadding fixed.Int26_6
-	buffer sfnt.Buffer
+	buffer      sfnt.Buffer
 }
 
 // Sets the configurable horizontal padding value, in pixels.

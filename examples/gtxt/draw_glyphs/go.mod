@@ -1,8 +1,8 @@
-module github.com/tinne26/etxt/examples/gtxt/draw_glyphs
+module github.com/Kintar/etxt/examples/gtxt/draw_glyphs
 
 go 1.17
 
-require github.com/tinne26/etxt v0.0.8-0.20221115110814-6b4c86da64d2
+require github.com/Kintar/etxt v0.0.8-0.20221115110814-6b4c86da64d2
 
 require (
 	github.com/ebitengine/purego v0.0.0-20220816145426-8dbe340b03f1 // indirect

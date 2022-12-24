@@ -3,11 +3,11 @@ package ecache
 import "unsafe"
 import "golang.org/x/image/math/fixed"
 
-import "github.com/tinne26/etxt/emask"
+import "github.com/Kintar/etxt/emask"
 
 // A default implementation of [GlyphCacheHandler].
 type DefaultCacheHandler struct {
-	cache *DefaultCache
+	cache     *DefaultCache
 	activeKey [3]uint64
 }
 
@@ -28,8 +28,8 @@ func (self *DefaultCacheHandler) NotifySizeChange(size fixed.Int26_6) {
 
 // Implements [GlyphCacheHandler].NotifyFractChange(...)
 func (self *DefaultCacheHandler) NotifyFractChange(fract fixed.Point26_6) {
-	bits := uint64(fract.Y & 0x0000003F) << 16
-	bits |= uint64(fract.X & 0x0000003F) << 22
+	bits := uint64(fract.Y&0x0000003F) << 16
+	bits |= uint64(fract.X&0x0000003F) << 22
 	self.activeKey[2] = (self.activeKey[2] & ^uint64(0x000000000FFF0000)) | bits
 }
 

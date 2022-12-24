@@ -7,7 +7,7 @@
 # >> xdg-open docs/reference_etxt.html
 
 pkgname="etxt"
-pkgurl="github.com/tinne26/$pkgname"
+pkgurl="github.com/Kintar/$pkgname"
 subpkgs="emask efixed esizer ecache eglyr"
 docsfolder="docs/"
 docsprefix="reference_"
@@ -29,7 +29,7 @@ if [ ! -f "./docs/$jsfile" ]; then
 	echo "downloading godoc js..."
 	curl -sS $jsurl --output ./docs/$jsfile
 fi
-if [ ! -f "./docs/$jqueryfile" ]; then 
+if [ ! -f "./docs/$jqueryfile" ]; then
 	echo "downloading jquery..."
 	curl -sS $jqueryurl --output ./docs/$jqueryfile
 fi

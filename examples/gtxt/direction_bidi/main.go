@@ -11,7 +11,7 @@ import "log"
 import "fmt"
 import "strings"
 
-import "github.com/tinne26/etxt"
+import "github.com/Kintar/etxt"
 import "golang.org/x/text/unicode/bidi"
 import "golang.org/x/image/math/fixed"
 
@@ -50,7 +50,9 @@ func main() {
 
 	// parse font
 	font, fontName, err := etxt.ParseFontFrom(os.Args[1])
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Font loaded: %s\n", fontName)
 
 	// get the string to test ready
@@ -59,14 +61,16 @@ func main() {
 
 	// verify that the font has both arabic and latin glyphs
 	missingRunes, err := etxt.GetMissingRunes(font, bidiText)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	if len(missingRunes) != 0 {
 		log.Print("This example requires a font with both latin and arabic glyphs.")
 		log.Fatalf("Missing glyphs: %s", fmtMissingRunes(missingRunes))
 	}
 
 	// create cache
-	cache := etxt.NewDefaultCache(1024*1024*1024) // 1GB cache
+	cache := etxt.NewDefaultCache(1024 * 1024 * 1024) // 1GB cache
 
 	// create and configure renderer
 	renderer := etxt.NewStdRenderer()
@@ -78,12 +82,14 @@ func main() {
 
 	// determine right-to-left and left-to-right sections
 	// (if you were more serious about bidi, you would roll
-   // your own renderer wrapping the etxt renderer and have
-   // all this encapsulated, but you get the idea...)
+	// your own renderer wrapping the etxt renderer and have
+	// all this encapsulated, but you get the idea...)
 	bidiParagraph := bidi.Paragraph{}
 	bidiParagraph.SetString(bidiText)
 	ordering, err := bidiParagraph.Order()
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	totalLength := 0
 	for i := 0; i < ordering.NumRuns(); i++ {
 		run := ordering.Run(i)
@@ -99,17 +105,19 @@ func main() {
 	// create target image and fill it with white
 	width := totalLength + 16 // 16px of margin
 	outImage := image.NewRGBA(image.Rect(0, 0, width, 42))
-	for i := 0; i < width*42*4; i++ { outImage.Pix[i] = 255 }
+	for i := 0; i < width*42*4; i++ {
+		outImage.Pix[i] = 255
+	}
 
 	// set target and prepare align and starting position
 	renderer.SetTarget(outImage)
-	dot := fixed.Point26_6{ 0, 21*64 }
+	dot := fixed.Point26_6{0, 21 * 64}
 	if bidiParagraph.IsLeftToRight() {
 		renderer.SetHorzAlign(etxt.Left)
-		dot.X = 8*64 // 8px
+		dot.X = 8 * 64 // 8px
 	} else { // is right to left
 		renderer.SetHorzAlign(etxt.Right)
-		dot.X = fixed.Int26_6((width - 8)*64) // width - 8px
+		dot.X = fixed.Int26_6((width - 8) * 64) // width - 8px
 	}
 
 	// draw each ordering run
@@ -127,14 +135,22 @@ func main() {
 
 	// store image as png
 	filename, err := filepath.Abs("gtxt_direction_bidi.png")
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Output image: %s\n", filename)
 	file, err := os.Create(filename)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = png.Encode(file, outImage)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = file.Close()
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Print("Program exited successfully.\n")
 }
 
@@ -155,22 +171,38 @@ func applyMirroring(str string) string {
 	var strBuilder strings.Builder
 	for _, codePoint := range str {
 		switch codePoint {
-		case '(': strBuilder.WriteRune(')')
-		case ')': strBuilder.WriteRune('(')
-		case '[': strBuilder.WriteRune(']')
-		case ']': strBuilder.WriteRune('[')
-		case '{': strBuilder.WriteRune('}')
-		case '}': strBuilder.WriteRune('{')
-		case '<': strBuilder.WriteRune('>')
-		case '>': strBuilder.WriteRune('<')
-		case '«': strBuilder.WriteRune('»')
-		case '»': strBuilder.WriteRune('«')
-		case '‹': strBuilder.WriteRune('›')
-		case '›': strBuilder.WriteRune('‹')
-		case '⟨': strBuilder.WriteRune('⟩')
-		case '⟩': strBuilder.WriteRune('⟨')
-		case '⟪': strBuilder.WriteRune('⟫')
-		case '⟫': strBuilder.WriteRune('⟪')
+		case '(':
+			strBuilder.WriteRune(')')
+		case ')':
+			strBuilder.WriteRune('(')
+		case '[':
+			strBuilder.WriteRune(']')
+		case ']':
+			strBuilder.WriteRune('[')
+		case '{':
+			strBuilder.WriteRune('}')
+		case '}':
+			strBuilder.WriteRune('{')
+		case '<':
+			strBuilder.WriteRune('>')
+		case '>':
+			strBuilder.WriteRune('<')
+		case '«':
+			strBuilder.WriteRune('»')
+		case '»':
+			strBuilder.WriteRune('«')
+		case '‹':
+			strBuilder.WriteRune('›')
+		case '›':
+			strBuilder.WriteRune('‹')
+		case '⟨':
+			strBuilder.WriteRune('⟩')
+		case '⟩':
+			strBuilder.WriteRune('⟨')
+		case '⟪':
+			strBuilder.WriteRune('⟫')
+		case '⟫':
+			strBuilder.WriteRune('⟪')
 		default:
 			strBuilder.WriteRune(codePoint)
 		}
@@ -184,9 +216,13 @@ func fmtMissingRunes(runes []rune) string {
 	var strBuilder strings.Builder
 	for i, codePoint := range runes {
 		_, alreadySeen := seen[codePoint]
-		if alreadySeen { continue }
+		if alreadySeen {
+			continue
+		}
 		seen[codePoint] = struct{}{}
-		if i > 0 { strBuilder.WriteString(", ") }
+		if i > 0 {
+			strBuilder.WriteString(", ")
+		}
 		strBuilder.WriteRune(codePoint)
 	}
 	return strBuilder.String()

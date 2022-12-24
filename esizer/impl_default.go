@@ -6,7 +6,7 @@ import "golang.org/x/image/math/fixed"
 
 // The default [Sizer] used by etxt renderers. For more information
 // about sizers, see the documentation of the [Sizer] interface.
-type DefaultSizer struct { buffer sfnt.Buffer }
+type DefaultSizer struct{ buffer sfnt.Buffer }
 
 // Satisfies the [Sizer] interface.
 func (self *DefaultSizer) Metrics(font *Font, size fixed.Int26_6) font.Metrics {

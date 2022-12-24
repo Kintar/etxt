@@ -14,9 +14,12 @@ import "golang.org/x/image/font/sfnt"
 import "golang.org/x/image/math/fixed"
 
 var testFont *sfnt.Font
+
 func init() { // parse test font
 	workDir, err := os.Getwd()
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fontPath := "test_font.ttf"
 	_, err = os.Stat(fontPath)
@@ -26,11 +29,15 @@ func init() { // parse test font
 
 	fontBytes, err := os.ReadFile(fontPath)
 	if err != nil {
-		if !errors.Is(err, fs.ErrNotExist) { log.Fatal(err) }
+		if !errors.Is(err, fs.ErrNotExist) {
+			log.Fatal(err)
+		}
 		log.Fatal("etxt requires '" + fontPath + "' file to run benchmarks")
 	}
 	testFont, err = sfnt.Parse(fontBytes)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func BenchmarkFauxBoldWhole(b *testing.B) {
@@ -98,9 +105,13 @@ func BenchmarkDefault(b *testing.B) {
 	rasterizer := DefaultRasterizer{}
 	_ = rasterizer.CacheSignature()
 	index, err := testFont.GlyphIndex(&buffer, 'g')
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	contours, err := testFont.LoadGlyph(&buffer, index, size, nil)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	dot := fixed.P(0, 0)
 
 	b.ResetTimer()
@@ -115,8 +126,12 @@ func getBenchMinData() (sfnt.Segments, *FauxRasterizer, fixed.Point26_6) {
 	rasterizer := FauxRasterizer{}
 	_ = rasterizer.CacheSignature()
 	index, err := testFont.GlyphIndex(&buffer, 'g')
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	contours, err := testFont.LoadGlyph(&buffer, index, size, nil)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	return contours, &rasterizer, fixed.P(0, 0)
 }

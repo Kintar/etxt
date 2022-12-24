@@ -7,25 +7,25 @@ import "math"
 import "image/color"
 
 import "github.com/hajimehoshi/ebiten/v2"
-import "github.com/tinne26/etxt"
-import "github.com/tinne26/etxt/emask"
-import "github.com/tinne26/etxt/esizer"
+import "github.com/Kintar/etxt"
+import "github.com/Kintar/etxt/emask"
+import "github.com/Kintar/etxt/esizer"
 
 const MainText = "The lazy programmer jumps\nover the brown codebase."
 
 type Game struct {
 	fauxRenderer *etxt.Renderer
 	helpRenderer *etxt.Renderer
-	italicAngle float64 // native italic angle for the font
+	italicAngle  float64 // native italic angle for the font
 
-	skewFactor float64 // [-1, 1]
-	extraWidth float64 // [0, 10]
+	skewFactor   float64 // [-1, 1]
+	extraWidth   float64 // [0, 10]
 	sinceLastKey int
-	quantized bool
+	quantized    bool
 
 	usingCustomSizer bool
-	fauxSizer esizer.Sizer
-	defaultSizer esizer.Sizer
+	fauxSizer        esizer.Sizer
+	defaultSizer     esizer.Sizer
 }
 
 func (self *Game) Layout(w int, h int) (int, int) { return w, h }
@@ -34,16 +34,24 @@ func (self *Game) Update() error {
 
 	// left/right to modify skew (oblique)
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		if self.applyArrowSkewChange(+1) { return nil }
+		if self.applyArrowSkewChange(+1) {
+			return nil
+		}
 	} else if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		if self.applyArrowSkewChange(-1) { return nil }
+		if self.applyArrowSkewChange(-1) {
+			return nil
+		}
 	}
 
 	// up/down to modify width (bold)
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
-		if self.applyArrowBoldChange(+1) { return nil}
+		if self.applyArrowBoldChange(+1) {
+			return nil
+		}
 	} else if ebiten.IsKeyPressed(ebiten.KeyDown) {
-		if self.applyArrowBoldChange(-1) { return nil}
+		if self.applyArrowBoldChange(-1) {
+			return nil
+		}
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
@@ -67,7 +75,7 @@ func (self *Game) Update() error {
 			//       do they do to measure angles. Maybe they don't even measure
 			//       them, but if they are wrong by only 2 degrees consider
 			//       yourself lucky...
-			newSkew := self.italicAngle/45.0
+			newSkew := self.italicAngle / 45.0
 			if newSkew != self.skewFactor {
 				self.skewFactor = newSkew
 				self.refreshSkew()
@@ -108,7 +116,9 @@ func (self *Game) Update() error {
 
 // logic to modify the skewFactor (for oblique text)
 func (self *Game) applyArrowSkewChange(sign int) bool {
-	if self.sinceLastKey < 10 { return false }
+	if self.sinceLastKey < 10 {
+		return false
+	}
 
 	var skewAbsChange float64
 	if ebiten.IsKeyPressed(ebiten.KeyShift) {
@@ -120,13 +130,19 @@ func (self *Game) applyArrowSkewChange(sign int) bool {
 	var newSkew float64
 	if sign >= 0 {
 		newSkew = self.skewFactor + skewAbsChange
-		if newSkew > 1.0 { newSkew = 1.0 }
+		if newSkew > 1.0 {
+			newSkew = 1.0
+		}
 	} else {
 		newSkew = self.skewFactor - skewAbsChange
-		if newSkew < -1.0 { newSkew = -1.0 }
+		if newSkew < -1.0 {
+			newSkew = -1.0
+		}
 	}
 
-	if newSkew == self.skewFactor { return false }
+	if newSkew == self.skewFactor {
+		return false
+	}
 	self.skewFactor = newSkew
 	self.refreshSkew()
 	self.sinceLastKey = 0
@@ -135,7 +151,9 @@ func (self *Game) applyArrowSkewChange(sign int) bool {
 
 // logic to modify the extraWidth (for faux-bold text)
 func (self *Game) applyArrowBoldChange(sign int) bool {
-	if self.sinceLastKey < 20 { return false }
+	if self.sinceLastKey < 20 {
+		return false
+	}
 
 	var boldAbsChange float64
 	if ebiten.IsKeyPressed(ebiten.KeyShift) {
@@ -147,13 +165,19 @@ func (self *Game) applyArrowBoldChange(sign int) bool {
 	var newBold float64
 	if sign >= 0 {
 		newBold = self.extraWidth + boldAbsChange
-		if newBold > 10.0 { newBold = 10.0 }
+		if newBold > 10.0 {
+			newBold = 10.0
+		}
 	} else {
 		newBold = self.extraWidth - boldAbsChange
-		if newBold <  0.0 { newBold =  0.0 }
+		if newBold < 0.0 {
+			newBold = 0.0
+		}
 	}
 
-	if newBold == self.extraWidth { return false }
+	if newBold == self.extraWidth {
+		return false
+	}
 	self.extraWidth = newBold
 	self.refreshBold()
 	self.sinceLastKey = 0
@@ -174,7 +198,7 @@ func (self *Game) refreshBold() {
 
 func (self *Game) Draw(screen *ebiten.Image) {
 	// dark background
-	screen.Fill(color.RGBA{ 0, 0, 0, 255 })
+	screen.Fill(color.RGBA{0, 0, 0, 255})
 
 	// draw text
 	w, h := screen.Size()
@@ -228,17 +252,19 @@ func main() {
 
 	// parse font
 	font, fontName, err := etxt.ParseFontFrom(os.Args[1])
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Font loaded: %s\n", fontName)
 
 	// create cache
-	cache := etxt.NewDefaultCache(1024*1024) // 1MB cache
+	cache := etxt.NewDefaultCache(1024 * 1024) // 1MB cache
 
 	// create and configure renderer
 	fauxRast := emask.FauxRasterizer{}
 	renderer := etxt.NewRenderer(&fauxRast)
 	defaultSizer := renderer.GetSizer()
-	customSizer  := &esizer.AdvancePadSizer{}
+	customSizer := &esizer.AdvancePadSizer{}
 	renderer.SetCacheHandler(cache.NewHandler())
 	renderer.SetSizePx(36)
 	renderer.SetFont(font)
@@ -248,7 +274,7 @@ func main() {
 	// link custom sizer to fauxRast
 	fauxRast.SetAuxOnChangeFunc(func(*emask.FauxRasterizer) {
 		const SpFactor = 0.5 // between 0.5 and 1.0 is ok
-		customSizer.SetPaddingFloat(SpFactor*fauxRast.GetExtraWidth())
+		customSizer.SetPaddingFloat(SpFactor * fauxRast.GetExtraWidth())
 	})
 
 	// create helper renderer for other text
@@ -263,18 +289,22 @@ func main() {
 	// get original italic angle information
 	postTable := font.PostTable()
 	italicAngle := math.NaN()
-	if postTable != nil { italicAngle = postTable.ItalicAngle }
+	if postTable != nil {
+		italicAngle = postTable.ItalicAngle
+	}
 
 	// run the game
 	ebiten.SetWindowTitle("etxt/examples/ebiten/faux_styles")
 	ebiten.SetWindowSize(640, 480)
-	err = ebiten.RunGame(&Game {
+	err = ebiten.RunGame(&Game{
 		fauxRenderer: renderer,
 		helpRenderer: helpRend,
-		quantized: true,
-		fauxSizer: customSizer,
+		quantized:    true,
+		fauxSizer:    customSizer,
 		defaultSizer: defaultSizer,
-		italicAngle: italicAngle,
+		italicAngle:  italicAngle,
 	})
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 }

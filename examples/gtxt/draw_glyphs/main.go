@@ -12,8 +12,8 @@ import "fmt"
 import "time"
 import "math/rand"
 
-import "github.com/tinne26/etxt"
-import "github.com/tinne26/etxt/eglyr"
+import "github.com/Kintar/etxt"
+import "github.com/Kintar/etxt/eglyr"
 
 // Must be compiled with '-tags gtxt'
 
@@ -40,12 +40,16 @@ func main() {
 
 	// parse font
 	font, fontName, err := etxt.ParseFontFrom(os.Args[1])
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Font loaded: %s\n", fontName)
 
 	// get the number of glyphs in the font
 	numGlyphs := font.NumGlyphs()
-	if numGlyphs <= 0 { log.Fatal("No glyphs found in the font.") }
+	if numGlyphs <= 0 {
+		log.Fatal("No glyphs found in the font.")
+	}
 
 	// create and configure renderer (no glyphs are likely to
 	// be repeated, so we won't bother creating a cache here)
@@ -65,7 +69,9 @@ func main() {
 	// create target image and fill it with white
 	width := renderer.SelectionRect(glyphs).Width.Ceil() + 16 // 16px of margin
 	outImage := image.NewRGBA(image.Rect(0, 0, width, 42))
-	for i := 0; i < width*42*4; i++ { outImage.Pix[i] = 255 }
+	for i := 0; i < width*42*4; i++ {
+		outImage.Pix[i] = 255
+	}
 
 	// set target and prepare align and draw
 	renderer.SetTarget(outImage)
@@ -73,13 +79,21 @@ func main() {
 
 	// store image as png
 	filename, err := filepath.Abs("gtxt_draw_glyphs.png")
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Output image: %s\n", filename)
 	file, err := os.Create(filename)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = png.Encode(file, outImage)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = file.Close()
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Print("Program exited successfully.\n")
 }

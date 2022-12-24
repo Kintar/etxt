@@ -25,18 +25,18 @@ import "golang.org/x/image/font/sfnt"
 // rasterizer manually through [EdgeMarkerRasterizer.SetCurveThreshold]() and
 // [EdgeMarkerRasterizer.SetMaxCurveSplits]().
 //
-// [well-documented]: https://github.com/tinne26/etxt/blob/main/docs/rasterize-outlines.md
+// [well-documented]: https://github.com/Kintar/etxt/blob/main/docs/rasterize-outlines.md
 type EdgeMarkerRasterizer struct {
 	// All relevant algorithms are implemented inside the unexported
 	// edgeMarker type (see emask/edge_marker.go), except for final
 	// buffer accumulation which is done directly on the Rasterize()
 	// method. The rest is only a wrapper to comply with the
 	// emask.Rasterizer interface.
-	rasterizer edgeMarker
-	onChange func(Rasterizer)
+	rasterizer     edgeMarker
+	onChange       func(Rasterizer)
 	cacheSignature uint64
-	rectOffset image.Point
-	normOffset fixed.Point26_6
+	rectOffset     image.Point
+	normOffset     fixed.Point26_6
 }
 
 // Creates a new [EdgeMarkerRasterizer] with reasonable default values.
@@ -50,7 +50,9 @@ func NewStdEdgeMarkerRasterizer() *EdgeMarkerRasterizer {
 // Satisfies the [UserCfgCacheSignature] interface.
 func (self *EdgeMarkerRasterizer) SetHighByte(value uint8) {
 	self.cacheSignature = uint64(value) << 56
-	if self.onChange != nil { self.onChange(self) }
+	if self.onChange != nil {
+		self.onChange(self)
+	}
 }
 
 // Sets the threshold distance to use when splitting Bézier curves into
@@ -69,7 +71,9 @@ func (self *EdgeMarkerRasterizer) SetCurveThreshold(threshold float32) {
 	bits := math.Float32bits(threshold)
 	self.cacheSignature &= 0xFFFFFFFF00000000
 	self.cacheSignature |= uint64(bits)
-	if self.onChange != nil { self.onChange(self) }
+	if self.onChange != nil {
+		self.onChange(self)
+	}
 }
 
 // Sets the maximum amount of times a curve can be recursively split
@@ -89,7 +93,9 @@ func (self *EdgeMarkerRasterizer) SetMaxCurveSplits(maxCurveSplits int) {
 	segmenter.SetMaxSplits(maxCurveSplits)
 	self.cacheSignature &= 0xFFFFFF00FFFFFFFF
 	self.cacheSignature |= uint64(segmenter.maxCurveSplits) << 32
-	if self.onChange != nil { self.onChange(self) }
+	if self.onChange != nil {
+		self.onChange(self)
+	}
 }
 
 // Satisfies the [Rasterizer] interface.
@@ -127,7 +133,7 @@ func (self *EdgeMarkerRasterizer) QuadTo(control, target fixed.Point26_6) {
 func (self *EdgeMarkerRasterizer) CubeTo(controlA, controlB, target fixed.Point26_6) {
 	cax, cay := self.fixedToFloat64Coords(controlA)
 	cbx, cby := self.fixedToFloat64Coords(controlB)
-	tx , ty  := self.fixedToFloat64Coords(target)
+	tx, ty := self.fixedToFloat64Coords(target)
 	self.rasterizer.CubeTo(cax, cay, cbx, cby, tx, ty)
 }
 
@@ -153,7 +159,7 @@ func (self *EdgeMarkerRasterizer) Rasterize(outline sfnt.Segments, fract fixed.P
 }
 
 func (self *EdgeMarkerRasterizer) fixedToFloat64Coords(point fixed.Point26_6) (float64, float64) {
-	x := float64(point.X + self.normOffset.X)/64
-	y := float64(point.Y + self.normOffset.Y)/64
+	x := float64(point.X+self.normOffset.X) / 64
+	y := float64(point.Y+self.normOffset.Y) / 64
 	return x, y
 }

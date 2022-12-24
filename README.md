@@ -1,5 +1,5 @@
 # etxt
-[![Go Reference](https://pkg.go.dev/badge/github.com/tinne26/etxt.svg)](https://pkg.go.dev/github.com/tinne26/etxt)
+[![Go Reference](https://pkg.go.dev/badge/github.com/Kintar/etxt.svg)](https://pkg.go.dev/github.com/Kintar/etxt)
 
 **etxt** is a package for font management and text rendering in Golang designed to be used with the [**Ebitengine**](https://github.com/hajimehoshi/ebiten) game engine.
 
@@ -9,7 +9,7 @@ As a quick summary of what this package provides:
 - Structured font management and usage through the `FontLibrary` and `Renderer` types; because having to create and manage new `font.Face`s just to change text size is *not* ok.
 - Full control over glyph mask caching and rasterization (or just stay with the defaults!).
 - A few custom rasterizers that allow you to draw faux-bold, oblique, ~~blurred and hollow text~~ (WIP). Not really "main features", though, only examples of what you can do with **etxt**.
-- Lots of [examples](https://github.com/tinne26/etxt/tree/main/examples) and thorough documentation.
+- Lots of [examples](https://github.com/Kintar/etxt/tree/main/examples) and thorough documentation.
 
 ## Code example
 Less talk and more code!
@@ -18,7 +18,7 @@ package main
 
 import ( "log" ; "time" ; "image/color" )
 import "github.com/hajimehoshi/ebiten/v2"
-import "github.com/tinne26/etxt"
+import "github.com/Kintar/etxt"
 
 type Game struct { txtRenderer *etxt.Renderer }
 func (self *Game) Layout(int, int) (int, int) { return 400, 400 }
@@ -89,7 +89,7 @@ func checkMissingRunes(name string, font *etxt.Font) error {
 
 This example focuses on the mundane usage of the main **etxt** `FontLibrary` and `Renderer` types, with abundant checks to fail fast if anything seems out of place.
 
-If you want flashier examples you will find [many more](https://github.com/tinne26/etxt/tree/main/examples) in the project, make sure to check them out!
+If you want flashier examples you will find [many more](https://github.com/Kintar/etxt/tree/main/examples) in the project, make sure to check them out!
 
 ## Can I use this package without Ebitengine?
 Yeah, you can compile it with `-tags gtxt`. Notice that `gtxt` will make text drawing happen on the CPU, so don't try to use it for real-time stuff. In particular, be careful to not accidentally use `gtxt` with Ebitengine (they are compatible in many cases, but performance will die).
@@ -105,6 +105,6 @@ This package is already quite solid, there are only a few points left to improve
 - Missing a couple important examples (crisp UI and shaders).
 
 If I get really bored, I'd also like to look into:
-- Contributing to Golang's **sfnt** to [expose more tables](https://github.com/golang/go/issues/45325) and allow the creation of minimal packages to do basic [text shaping](https://github.com/tinne26/etxt/blob/main/docs/shaping.md) in arabic or other complex scripts.
+- Contributing to Golang's **sfnt** to [expose more tables](https://github.com/golang/go/issues/45325) and allow the creation of minimal packages to do basic [text shaping](https://github.com/Kintar/etxt/blob/main/docs/shaping.md) in arabic or other complex scripts.
 - Add outline expansion. Freetype and libASS do this, and it would be quite nice to get high quality outlines and better faux-bolds... but it's also *hard*; I don't really know if I want to go there.
 - Triangulation and GPU rendering of Bézier curves are also interesting for Ebitengine (although they probably don't belong in this package).

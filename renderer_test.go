@@ -13,53 +13,77 @@ import "testing"
 import "golang.org/x/image/font/sfnt"
 import "golang.org/x/image/math/fixed"
 
-import "github.com/tinne26/etxt/emask"
-import "github.com/tinne26/etxt/esizer"
-import "github.com/tinne26/etxt/efixed"
+import "github.com/Kintar/etxt/emask"
+import "github.com/Kintar/etxt/esizer"
+import "github.com/Kintar/etxt/efixed"
 
 func TestSetGet(t *testing.T) {
 	// mostly tests the renderer default values
 	rast := emask.FauxRasterizer{}
 	renderer := NewRenderer(&rast)
 	vAlign, hAlign := renderer.GetAlign()
-	if vAlign != Baseline { t.Fatalf("expected Baseline, got %d", vAlign) }
-	if hAlign != Left     { t.Fatalf("expected Left, got %d", hAlign) }
+	if vAlign != Baseline {
+		t.Fatalf("expected Baseline, got %d", vAlign)
+	}
+	if hAlign != Left {
+		t.Fatalf("expected Left, got %d", hAlign)
+	}
 
 	handler := renderer.GetCacheHandler()
-	if handler != nil { t.Fatalf("expected nil cache handler") }
+	if handler != nil {
+		t.Fatalf("expected nil cache handler")
+	}
 
 	rgba, isRgba := renderer.GetColor().(color.RGBA)
-	if !isRgba { t.Fatal("expected rgba color") }
+	if !isRgba {
+		t.Fatal("expected rgba color")
+	}
 	if rgba.R != 255 || rgba.G != 255 || rgba.B != 255 || rgba.A != 255 {
 		t.Fatalf("expected white")
 	}
 
 	font := renderer.GetFont()
-	if font != nil { t.Fatal("expected nil font") }
+	if font != nil {
+		t.Fatal("expected nil font")
+	}
 
 	renderer.SetLineHeight(10)
 	renderer.SetLineSpacing(2)
 	advance := renderer.GetLineAdvance()
-	if advance != (20 << 6) { t.Fatalf("expected advance = 20, got %f", float64(advance)/64) }
+	if advance != (20 << 6) {
+		t.Fatalf("expected advance = 20, got %f", float64(advance)/64)
+	}
 	renderer.SetLineHeightAuto()
 
-	if renderer.GetRasterizer() != &rast { t.Fatal("what") }
+	if renderer.GetRasterizer() != &rast {
+		t.Fatal("what")
+	}
 
 	sizePx := renderer.GetSizePxFract()
-	if sizePx != 16 << 6 { t.Fatalf("expected size = 16, got %f", float64(sizePx)/64) }
+	if sizePx != 16<<6 {
+		t.Fatalf("expected size = 16, got %f", float64(sizePx)/64)
+	}
 	renderer.SetSizePxFract(17 << 6)
-	sizePx  = renderer.GetSizePxFract()
-	if sizePx != 17 << 6 { t.Fatalf("expected size = 17, got %f", float64(sizePx)/64) }
+	sizePx = renderer.GetSizePxFract()
+	if sizePx != 17<<6 {
+		t.Fatalf("expected size = 17, got %f", float64(sizePx)/64)
+	}
 
 	sizer := renderer.GetSizer()
 	_, isDefaultSizer := sizer.(*esizer.DefaultSizer)
-	if !isDefaultSizer { t.Fatal("expected DefaultSizer") }
+	if !isDefaultSizer {
+		t.Fatal("expected DefaultSizer")
+	}
 
 	renderer.SetVertAlign(YCenter)
 	renderer.SetHorzAlign(XCenter)
 	vAlign, hAlign = renderer.GetAlign()
-	if vAlign != YCenter { t.Fatalf("expected YCenter, got %d", vAlign) }
-	if hAlign != XCenter { t.Fatalf("expected XCenter, got %d", hAlign) }
+	if vAlign != YCenter {
+		t.Fatalf("expected YCenter, got %d", vAlign)
+	}
+	if hAlign != XCenter {
+		t.Fatalf("expected XCenter, got %d", hAlign)
+	}
 }
 
 func TestSelectionRect(t *testing.T) {
@@ -80,14 +104,20 @@ func TestSelectionRect(t *testing.T) {
 	}
 	imgRect := rect.ImageRect()
 	rect2 := renderer.SelectionRect("hey ho hey ho")
-	if !imgRect.In(rect2.ImageRect()) { t.Fatal("inconsistent rects") }
+	if !imgRect.In(rect2.ImageRect()) {
+		t.Fatal("inconsistent rects")
+	}
 
 	testGlyphs := make([]GlyphIndex, 0, len("hey ho"))
 	var buffer sfnt.Buffer
 	for _, codePoint := range "hey ho" {
 		index, err := testFont.GlyphIndex(&buffer, codePoint)
-		if err != nil { panic(err) }
-		if index == 0 { panic(err) }
+		if err != nil {
+			panic(err)
+		}
+		if index == 0 {
+			panic(err)
+		}
 		testGlyphs = append(testGlyphs, index)
 	}
 
@@ -98,7 +128,7 @@ func TestSelectionRect(t *testing.T) {
 	}
 
 	// test line breaks and other edge cases
-	renderer.SetLineSpacing(1) // restore spacing
+	renderer.SetLineSpacing(1)      // restore spacing
 	renderer.SetQuantizerStep(1, 1) // prevent vertical quantization adjustments
 	renderer.SetDirection(LeftToRight)
 	rect = renderer.SelectionRect("")
@@ -155,23 +185,33 @@ func TestStringVsGlyph(t *testing.T) {
 	renderer.SetQuantizerStep(64, 64)
 	renderer.SetColor(color.RGBA{0, 0, 0, 255}) // black
 
-	alignPairs := []struct{ vert VertAlign; horz HorzAlign }{
+	alignPairs := []struct {
+		vert VertAlign
+		horz HorzAlign
+	}{
 		{vert: Baseline, horz: Left}, {vert: YCenter, horz: XCenter},
 		{vert: Top, horz: Right}, {vert: Bottom, horz: Left},
 	}
-	type quantMode struct { HorzStep fixed.Int26_6 ; VertStep fixed.Int26_6 }
+	type quantMode struct {
+		HorzStep fixed.Int26_6
+		VertStep fixed.Int26_6
+	}
 	quantModes := []quantMode{
-		quantMode{ HorzStep: 64, VertStep: 64 }, // full quantization
-		quantMode{ HorzStep:  1, VertStep: 64 }, // vert quantization
-		quantMode{ HorzStep:  1, VertStep:  1 }, // no quantization
+		quantMode{HorzStep: 64, VertStep: 64}, // full quantization
+		quantMode{HorzStep: 1, VertStep: 64},  // vert quantization
+		quantMode{HorzStep: 1, VertStep: 1},   // no quantization
 	}
 
 	testText := "for lack of better words"
 	var buffer sfnt.Buffer
 
 	missing, err := GetMissingRunes(testFont, testText)
-	if err != nil { panic(err) }
-	if len(missing) > 0 { panic("missing runes to test") }
+	if err != nil {
+		panic(err)
+	}
+	if len(missing) > 0 {
+		panic("missing runes to test")
+	}
 
 	// get text as glyphs
 	testGlyphs := make([]GlyphIndex, 0, len(testText))
@@ -208,11 +248,15 @@ func TestStringVsGlyph(t *testing.T) {
 	}
 
 	// create target image and fill it with white
-	w, h := rect.Width.Ceil()*2 + 8, rect.Height.Ceil()*2 + 8
+	w, h := rect.Width.Ceil()*2+8, rect.Height.Ceil()*2+8
 	outImageA := image.NewRGBA(image.Rect(0, 0, w, h))
 	outImageB := image.NewRGBA(image.Rect(0, 0, w, h))
-	for i := 0; i < w*h*4; i++ { outImageA.Pix[i] = 255 }
-	for i := 0; i < w*h*4; i++ { outImageB.Pix[i] = 255 }
+	for i := 0; i < w*h*4; i++ {
+		outImageA.Pix[i] = 255
+	}
+	for i := 0; i < w*h*4; i++ {
+		outImageB.Pix[i] = 255
+	}
 
 	// draw and compare results between glyphs and text
 	for _, textDir := range []Direction{LeftToRight, RightToLeft} {
@@ -241,8 +285,12 @@ func TestStringVsGlyph(t *testing.T) {
 				}
 
 				// clear images
-				for i := 0; i < w*h*4; i++ { outImageA.Pix[i] = 255 }
-				for i := 0; i < w*h*4; i++ { outImageB.Pix[i] = 255 }
+				for i := 0; i < w*h*4; i++ {
+					outImageA.Pix[i] = 255
+				}
+				for i := 0; i < w*h*4; i++ {
+					outImageB.Pix[i] = 255
+				}
 			}
 		}
 	}
@@ -251,8 +299,8 @@ func TestStringVsGlyph(t *testing.T) {
 func drawGlyphs(renderer *Renderer, glyphIndices []GlyphIndex, x, y int) fixed.Point26_6 {
 	return renderer.TraverseGlyphs(glyphIndices, fixed.P(x, y),
 		func(dot fixed.Point26_6, glyphIndex GlyphIndex) {
-				mask := renderer.LoadGlyphMask(glyphIndex, dot)
-				renderer.DefaultDrawFunc(dot, mask, glyphIndex)
+			mask := renderer.LoadGlyphMask(glyphIndex, dot)
+			renderer.DefaultDrawFunc(dot, mask, glyphIndex)
 		})
 }
 
@@ -276,88 +324,122 @@ func TestGtxtMixModes(t *testing.T) {
 	renderer.SetTarget(target)
 
 	// replace mode
-	for i, _ := range target.Pix { target.Pix[i] = 255 }
+	for i, _ := range target.Pix {
+		target.Pix[i] = 255
+	}
 	renderer.SetMixMode(MixReplace)
 	renderer.Draw("O", 32, 32)
 
 	ok := false
 	for i := 0; i < len(target.Pix); i += 4 {
-		alpha := target.Pix[i + 3]
-		if alpha == 0 { ok = true }
-		if target.Pix[i + 0] != alpha { t.Fatalf("%d, %d, %d", i, alpha, target.Pix[i + 0]) }
-		if target.Pix[i + 1] != alpha { t.Fatalf("%d, %d, %d", i, alpha, target.Pix[i + 1]) }
-		if target.Pix[i + 2] != alpha { t.Fatalf("%d, %d, %d", i, alpha, target.Pix[i + 2]) }
+		alpha := target.Pix[i+3]
+		if alpha == 0 {
+			ok = true
+		}
+		if target.Pix[i+0] != alpha {
+			t.Fatalf("%d, %d, %d", i, alpha, target.Pix[i+0])
+		}
+		if target.Pix[i+1] != alpha {
+			t.Fatalf("%d, %d, %d", i, alpha, target.Pix[i+1])
+		}
+		if target.Pix[i+2] != alpha {
+			t.Fatalf("%d, %d, %d", i, alpha, target.Pix[i+2])
+		}
 	}
-	if !ok { t.Fatal("expected some transparent region, but didn't find it") }
+	if !ok {
+		t.Fatal("expected some transparent region, but didn't find it")
+	}
 
 	// mix cut mode
 	renderer.SetMixMode(MixCut)
 	renderer.Draw("O", 32, 32)
 	for i := 0; i < len(target.Pix); i += 4 {
-		alpha := target.Pix[i + 3]
+		alpha := target.Pix[i+3]
 		if alpha != 0 && alpha != 255 {
 			t.Fatalf("unexpected alpha %d at %d", alpha, i)
 		}
 	}
 
 	// sub mode
-	for i, _ := range target.Pix { target.Pix[i] = 255 }
+	for i, _ := range target.Pix {
+		target.Pix[i] = 255
+	}
 	renderer.SetMixMode(MixSub)
 	renderer.SetColor(color.RGBA{255, 0, 255, 255})
 	renderer.Draw("O", 32, 32)
 	ok = false
 	for i := 0; i < len(target.Pix); i += 4 {
-		if target.Pix[i + 1] == 255 && target.Pix[i + 3] == 255 &&
-		   target.Pix[i + 0] == 0   && target.Pix[i + 2] == 0 {
-				ok = true // pure green found
+		if target.Pix[i+1] == 255 && target.Pix[i+3] == 255 &&
+			target.Pix[i+0] == 0 && target.Pix[i+2] == 0 {
+			ok = true // pure green found
 		}
 	}
-	if !ok { t.Fatal("failed to find green") }
+	if !ok {
+		t.Fatal("failed to find green")
+	}
 
 	renderer.SetMixMode(MixMultiply)
 	renderer.SetColor(color.RGBA{0, 0, 0, 255})
 	renderer.Draw("O", 32, 32)
 	for i := 0; i < len(target.Pix); i += 4 {
-		alpha := target.Pix[i + 3]
-		if alpha != 255 { t.Fatalf("unexpected alpha %d at %d", alpha, i) }
-		if target.Pix[i + 0] != target.Pix[i + 2] || target.Pix[i + 1] < target.Pix[i + 2] {
+		alpha := target.Pix[i+3]
+		if alpha != 255 {
+			t.Fatalf("unexpected alpha %d at %d", alpha, i)
+		}
+		if target.Pix[i+0] != target.Pix[i+2] || target.Pix[i+1] < target.Pix[i+2] {
 			t.Fatalf("bad color")
 		}
 	}
 
 	// add mode
 	for i := 0; i < len(target.Pix); i += 4 {
-		target.Pix[i + 0] = 255
-		target.Pix[i + 1] = 0
-		target.Pix[i + 2] = 0
-		target.Pix[i + 3] = 255
+		target.Pix[i+0] = 255
+		target.Pix[i+1] = 0
+		target.Pix[i+2] = 0
+		target.Pix[i+3] = 255
 	}
 	renderer.SetMixMode(MixAdd)
 	renderer.SetColor(color.RGBA{0, 0, 255, 255})
 	renderer.Draw("O", 32, 32)
 	ok = false
 	for i := 0; i < len(target.Pix); i += 4 {
-		if target.Pix[i + 1] !=   0 { t.Fatal("green must be 0")   }
-		if target.Pix[i + 3] != 255 { t.Fatal("alpha must be 255") }
-		if target.Pix[i] == 255 && target.Pix[i + 2] == 255 { ok = true }
+		if target.Pix[i+1] != 0 {
+			t.Fatal("green must be 0")
+		}
+		if target.Pix[i+3] != 255 {
+			t.Fatal("alpha must be 255")
+		}
+		if target.Pix[i] == 255 && target.Pix[i+2] == 255 {
+			ok = true
+		}
 	}
-	if !ok { t.Fatal("failed to find pure magenta") }
+	if !ok {
+		t.Fatal("failed to find pure magenta")
+	}
 
 	// fifty-fifty mode
 	for i := 0; i < len(target.Pix); i += 4 {
-		target.Pix[i + 0] = 255
-		target.Pix[i + 1] = 0
-		target.Pix[i + 2] = 0
-		target.Pix[i + 3] = 255
+		target.Pix[i+0] = 255
+		target.Pix[i+1] = 0
+		target.Pix[i+2] = 0
+		target.Pix[i+3] = 255
 	}
 	renderer.SetMixMode(MixFiftyFifty)
 	renderer.SetColor(color.RGBA{255, 0, 255, 255})
 	renderer.Draw("O", 32, 32)
 	for i := 0; i < len(target.Pix); i += 4 {
-		if target.Pix[i + 1] !=   0 { t.Fatal("green must be 0")   }
-		if target.Pix[i + 3] != 255 { t.Fatal("alpha must be 255") }
-		if target.Pix[i + 0] != 255 { t.Fatal("red must be 255") }
-		if target.Pix[i + 2]  > 128 { t.Fatalf("blue over 128 %d", target.Pix[i + 2]) }
+		if target.Pix[i+1] != 0 {
+			t.Fatal("green must be 0")
+		}
+		if target.Pix[i+3] != 255 {
+			t.Fatal("alpha must be 255")
+		}
+		if target.Pix[i+0] != 255 {
+			t.Fatal("red must be 255")
+		}
+		if target.Pix[i+2] > 128 {
+			t.Fatalf("blue over 128 %d", target.Pix[i+2])
+		}
 	}
 }
 
@@ -402,9 +484,15 @@ func TestAlignBound(t *testing.T) {
 
 func debugExport(name string, img image.Image) {
 	file, err := os.Create(name)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = png.Encode(file, img)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = file.Close()
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 }

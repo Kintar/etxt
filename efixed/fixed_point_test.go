@@ -15,20 +15,20 @@ func TestFromFloat(t *testing.T) {
 		low  fixed.Int26_6
 		high fixed.Int26_6
 	}{
-		{in:   0.0, low:    0, high:    0},
-		{in:   1.0, low:   64, high:   64},
-		{in:  -1.0, low:  -64, high:  -64},
-		{in:   0.5, low:   32, high:   32},
-		{in:  3.14, low:  201, high:  201},
+		{in: 0.0, low: 0, high: 0},
+		{in: 1.0, low: 64, high: 64},
+		{in: -1.0, low: -64, high: -64},
+		{in: 0.5, low: 32, high: 32},
+		{in: 3.14, low: 201, high: 201},
 		{in: -3.14, low: -201, high: -201},
-		{in:  8.33, low:  533, high:  533},
+		{in: 8.33, low: 533, high: 533},
 		{in: 8.3359375, low: 533, high: 534},
 		{in: 8.3359374, low: 533, high: 533},
 		{in: 8.3359376, low: 534, high: 534},
 		{in: -8.3359375, low: -534, high: -533},
 		{in: -8.3359374, low: -533, high: -533},
 		{in: -8.3359376, low: -534, high: -534},
-		{in:  33554432, low: 2147483647, high: 2147483647},
+		{in: 33554432, low: 2147483647, high: 2147483647},
 		{in: -33554432, low: -2147483648, high: -2147483648},
 		{in: -33554432.015625, low: -2147483648, high: -2147483648},
 	}
@@ -42,9 +42,9 @@ func TestFromFloat(t *testing.T) {
 	}
 
 	// test expected panics
-	for _, value := range []float64{ math.NaN(), math.Inf(1), math.Inf(-1), -33554432.015626, 33554432.0000001 } {
+	for _, value := range []float64{math.NaN(), math.Inf(1), math.Inf(-1), -33554432.015626, 33554432.0000001} {
 		func() {
-			defer func(){ _ = recover() }()
+			defer func() { _ = recover() }()
 			FromFloat64(value)
 			t.Fatalf("expected %f to panic", value)
 		}()
@@ -53,18 +53,18 @@ func TestFromFloat(t *testing.T) {
 
 func TestHalfRounding(t *testing.T) {
 	halfUpTests := []struct {
-		in fixed.Int26_6
+		in  fixed.Int26_6
 		out fixed.Int26_6
 	}{
 		{in: 0, out: 0}, {in: 32, out: 64}, {in: 31, out: 0},
 		{in: -32, out: 0}, {in: -31, out: 0}, {in: -33, out: -64},
 		{in: FromFloat64RoundToZero(3.1416), out: FromFloat64RoundToZero(3.00)},
 		{in: FromFloat64RoundToZero(-3.1416), out: FromFloat64RoundToZero(-3.00)},
-		{in: FromFloat64RoundToZero(-3.9)  , out: FromFloat64RoundToZero(-4.00)},
-		{in: FromFloat64RoundToZero(3.9)   , out: FromFloat64RoundToZero(4.00)},
-		{in: FromFloat64RoundToZero(112.4) , out: FromFloat64RoundToZero(112.00)},
-		{in: FromFloat64RoundToZero(112.5) , out: FromFloat64RoundToZero(113.00)},
-		{in: FromFloat64RoundToZero(112.6) , out: FromFloat64RoundToZero(113.00)},
+		{in: FromFloat64RoundToZero(-3.9), out: FromFloat64RoundToZero(-4.00)},
+		{in: FromFloat64RoundToZero(3.9), out: FromFloat64RoundToZero(4.00)},
+		{in: FromFloat64RoundToZero(112.4), out: FromFloat64RoundToZero(112.00)},
+		{in: FromFloat64RoundToZero(112.5), out: FromFloat64RoundToZero(113.00)},
+		{in: FromFloat64RoundToZero(112.6), out: FromFloat64RoundToZero(113.00)},
 		{in: FromFloat64RoundToZero(-112.4), out: FromFloat64RoundToZero(-112.00)},
 		{in: FromFloat64RoundToZero(-112.5), out: FromFloat64RoundToZero(-112.00)},
 		{in: FromFloat64RoundToZero(-112.6), out: FromFloat64RoundToZero(-113.00)},
@@ -91,8 +91,8 @@ func TestHalfRounding(t *testing.T) {
 	// consistency test between round half up and round half down
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < 100; i++ {
-		value := fixed.Int26_6(rand.Int31n(1 << 26) - (1 << 25))
-		up   := RoundHalfUp(-value)
+		value := fixed.Int26_6(rand.Int31n(1<<26) - (1 << 25))
+		up := RoundHalfUp(-value)
 		down := RoundHalfDown(value)
 		if up != -down {
 			str := "rand test: in %d (%.6f) caused discordant output, up with -in returned %d (%.6f), and down returned %d (%.6f)"
@@ -103,7 +103,7 @@ func TestHalfRounding(t *testing.T) {
 
 func TestIntHalf(t *testing.T) {
 	halfUpTests := []struct {
-		in fixed.Int26_6
+		in  fixed.Int26_6
 		out int
 	}{
 		{in: 0, out: 0}, {in: 32, out: 1}, {in: 31, out: 0},
@@ -141,8 +141,8 @@ func TestIntHalf(t *testing.T) {
 	// consistency test between int half up and int half down
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < 100; i++ {
-		value := fixed.Int26_6(rand.Int31n(1 << 26) - (1 << 25))
-		up   := ToIntHalfUp(value)
+		value := fixed.Int26_6(rand.Int31n(1<<26) - (1 << 25))
+		up := ToIntHalfUp(value)
 		down := ToIntHalfDown(-value)
 		if -up != down {
 			str := "rand test: in %d (%.6f) caused discordant output, up with in returned %d, and down with -in returned %d"
@@ -154,8 +154,8 @@ func TestIntHalf(t *testing.T) {
 func TestQuantizeFract(t *testing.T) {
 	upTests := []struct {
 		step uint8
-		in  fixed.Int26_6
-		out fixed.Int26_6
+		in   fixed.Int26_6
+		out  fixed.Int26_6
 	}{
 		{step: 1, in: 26, out: 26}, {step: 1, in: 27, out: 27}, {step: 1, in: 45, out: 45},
 		{step: 2, in: 26, out: 26}, {step: 2, in: 27, out: 28}, {step: 2, in: 45, out: 46},
@@ -163,7 +163,7 @@ func TestQuantizeFract(t *testing.T) {
 		{step: 4, in: 26, out: 28}, {step: 4, in: 27, out: 28}, {step: 4, in: 45, out: 44},
 		{step: 5, in: 62, out: 60}, {step: 5, in: 63, out: 64}, {step: 5, in: 59, out: 60},
 		{step: 5, in: 67, out: 69}, {step: 5, in: 66, out: 64},
-		
+
 		{step: 1, in: -26, out: -26}, {step: 1, in: -27, out: -27}, {step: 1, in: -45, out: -45},
 		{step: 2, in: -26, out: -26}, {step: 2, in: -27, out: -26}, {step: 2, in: -45, out: -44},
 		{step: 3, in: -26, out: -27}, {step: 3, in: -27, out: -27}, {step: 3, in: -45, out: -45},
@@ -184,8 +184,8 @@ func TestQuantizeFract(t *testing.T) {
 
 	downTests := []struct {
 		step uint8
-		in  fixed.Int26_6
-		out fixed.Int26_6
+		in   fixed.Int26_6
+		out  fixed.Int26_6
 	}{
 		{step: 1, in: 26, out: 26}, {step: 1, in: 27, out: 27}, {step: 1, in: 45, out: 45},
 		{step: 2, in: 26, out: 26}, {step: 2, in: 27, out: 26}, {step: 2, in: 45, out: 44},
@@ -193,7 +193,7 @@ func TestQuantizeFract(t *testing.T) {
 		{step: 4, in: 26, out: 24}, {step: 4, in: 27, out: 28}, {step: 4, in: 45, out: 44},
 		{step: 5, in: 62, out: 60}, {step: 5, in: 63, out: 64}, {step: 5, in: 59, out: 60},
 		{step: 5, in: 67, out: 69}, {step: 5, in: 66, out: 64},
-		
+
 		{step: 1, in: -26, out: -26}, {step: 1, in: -27, out: -27}, {step: 1, in: -45, out: -45},
 		{step: 2, in: -26, out: -26}, {step: 2, in: -27, out: -28}, {step: 2, in: -45, out: -46},
 		{step: 3, in: -26, out: -27}, {step: 3, in: -27, out: -27}, {step: 3, in: -45, out: -45},

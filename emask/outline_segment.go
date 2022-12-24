@@ -14,7 +14,7 @@ type outlineSegment struct {
 	c2 float64
 }
 
-func (self *outlineSegment) Fill(buffer *buffer, prevSegment, nextSegment *outlineSegment) {//, maxOutDist float64) {
+func (self *outlineSegment) Fill(buffer *buffer, prevSegment, nextSegment *outlineSegment) { //, maxOutDist float64) {
 	oxOut, oyOut, oxIn, oyIn, oxx, oxy := prevSegment.intersect(self)
 	fxOut, fyOut, fxIn, fyIn, fxx, fxy := self.intersect(nextSegment)
 
@@ -52,7 +52,7 @@ func (self *outlineSegment) Fill(buffer *buffer, prevSegment, nextSegment *outli
 	buffer.FillConvexQuad(oxOut, oyOut, oxIn, oyIn, fxOut, fyOut, fxIn, fyIn)
 }
 
-func (self *outlineSegment) CutHead(buffer *buffer, prevSegment *outlineSegment) {//, maxOutDist float64) {
+func (self *outlineSegment) CutHead(buffer *buffer, prevSegment *outlineSegment) { //, maxOutDist float64) {
 	oxOut, oyOut, oxIn, oyIn, oxx, oxy := prevSegment.intersect(self)
 	_, _ = oxx, oxy
 	// maxOutDist2 := maxOutDist*maxOutDist
@@ -71,7 +71,7 @@ func (self *outlineSegment) CutHead(buffer *buffer, prevSegment *outlineSegment)
 	buffer.FillConvexQuad(oxOut, oyOut, oxIn, oyIn, ox1, oy1, ox2, oy2)
 }
 
-func (self *outlineSegment) CutTail(buffer *buffer, nextSegment *outlineSegment) {//, maxOutDist float64) {
+func (self *outlineSegment) CutTail(buffer *buffer, nextSegment *outlineSegment) { //, maxOutDist float64) {
 	a, b, oc := perpendicularABC(self.a, self.b, self.ox, self.oy)
 	xdiv := a*self.b - self.a*b
 	ox1, oy1 := shortCramer(xdiv, a, b, oc, self.a, self.b, self.c1)
@@ -118,13 +118,13 @@ func (self *outlineSegment) intersect(other *outlineSegment) (float64, float64, 
 	// at each side of the line equations to determine inner and
 	// outer vertices
 	ac, bc := -(self.a*self.fx + self.b*self.fy), -(other.a*self.fx + other.b*self.fy)
-	boa := (self.b*other.fy > -self.a*other.fx - ac)
-	bob := (other.b*self.oy > -other.a*self.ox - bc)
+	boa := (self.b*other.fy > -self.a*other.fx-ac)
+	bob := (other.b*self.oy > -other.a*self.ox-bc)
 	var inX, inY, outX, outY float64
 	var auxX, auxY float64
-	for _, pt := range []struct{x, y float64}{{x11, y11}, {x12, y12}, {x21, y21}, {x22, y22}} {
-		jaCmp := (self.b*pt.y  > -self.a*pt.x  - ac)
-		jbCmp := (other.b*pt.y > -other.a*pt.x - bc)
+	for _, pt := range []struct{ x, y float64 }{{x11, y11}, {x12, y12}, {x21, y21}, {x22, y22}} {
+		jaCmp := (self.b*pt.y > -self.a*pt.x-ac)
+		jbCmp := (other.b*pt.y > -other.a*pt.x-bc)
 		if (boa == jaCmp) == (bob == jbCmp) {
 			if boa == jaCmp {
 				inX, inY = pt.x, pt.y

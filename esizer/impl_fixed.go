@@ -4,7 +4,7 @@ import "golang.org/x/image/font"
 import "golang.org/x/image/font/sfnt"
 import "golang.org/x/image/math/fixed"
 
-import "github.com/tinne26/etxt/efixed"
+import "github.com/Kintar/etxt/efixed"
 
 // A [Sizer] with a fixed advance between glyphs.
 type FixedSizer struct {

@@ -10,7 +10,9 @@ import "golang.org/x/image/math/fixed"
 // while implementing your own sizers.
 func DefaultMetricsFunc(f *Font, size fixed.Int26_6, buffer *sfnt.Buffer) font.Metrics {
 	metrics, err := f.Metrics(buffer, size, font.HintingNone)
-	if err != nil { panic("font.Metrics error: " + err.Error()) }
+	if err != nil {
+		panic("font.Metrics error: " + err.Error())
+	}
 	return metrics
 }
 
@@ -18,7 +20,9 @@ func DefaultMetricsFunc(f *Font, size fixed.Int26_6, buffer *sfnt.Buffer) font.M
 // while implementing your own sizers.
 func DefaultAdvanceFunc(f *Font, glyphIndex GlyphIndex, size fixed.Int26_6, buffer *sfnt.Buffer) fixed.Int26_6 {
 	advance, err := f.GlyphAdvance(buffer, glyphIndex, size, font.HintingNone)
-	if err == nil { return advance }
+	if err == nil {
+		return advance
+	}
 
 	msg := "font.GlyphAdvance(index = " + strconv.Itoa(int(glyphIndex))
 	msg += ") error: " + err.Error()
@@ -29,8 +33,12 @@ func DefaultAdvanceFunc(f *Font, glyphIndex GlyphIndex, size fixed.Int26_6, buff
 // while implementing your own sizers.
 func DefaultKernFunc(f *Font, prevGlyphIndex GlyphIndex, currGlyphIndex GlyphIndex, size fixed.Int26_6, buffer *sfnt.Buffer) fixed.Int26_6 {
 	kern, err := f.Kern(buffer, prevGlyphIndex, currGlyphIndex, size, font.HintingNone)
-	if err == nil { return kern }
-	if err == sfnt.ErrNotFound { return 0 }
+	if err == nil {
+		return kern
+	}
+	if err == sfnt.ErrNotFound {
+		return 0
+	}
 
 	msg := "font.Kern failed for glyphs with indices "
 	msg += strconv.Itoa(int(prevGlyphIndex)) + " and "

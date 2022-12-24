@@ -1,9 +1,9 @@
-module github.com/tinne26/etxt/examples/gtxt/direction_bidi
+module github.com/Kintar/etxt/examples/gtxt/direction_bidi
 
 go 1.17
 
 require (
-	github.com/tinne26/etxt v0.0.8-0.20221115110814-6b4c86da64d2
+	github.com/Kintar/etxt v0.0.8-0.20221115110814-6b4c86da64d2
 	golang.org/x/image v0.1.0
 	golang.org/x/text v0.4.0
 )

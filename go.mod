@@ -1,4 +1,4 @@
-module github.com/tinne26/etxt
+module github.com/Kintar/etxt
 
 go 1.17
 

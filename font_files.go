@@ -26,7 +26,9 @@ func ParseFontFrom(path string) (*Font, string, error) {
 
 	// open font file
 	file, err := os.Open(path)
-	if err != nil { return nil, "", err }
+	if err != nil {
+		return nil, "", err
+	}
 	return parseFontFileAndClose(file, gzipped)
 }
 
@@ -43,12 +45,14 @@ func ParseEmbedFontFrom(path string, embedFileSys embed.FS) (*Font, string, erro
 
 	// open font file
 	file, err := embedFileSys.Open(path)
-	if err != nil { return nil, "", err }
+	if err != nil {
+		return nil, "", err
+	}
 	return parseFontFileAndClose(file, gzipped)
 }
 
 func parseFontFileAndClose(file io.ReadCloser, gzipped bool) (*Font, string, error) {
-	fileCloser := onceCloser{ file, false }
+	fileCloser := onceCloser{file, false}
 	defer fileCloser.Close()
 
 	// detect gzipping
@@ -56,9 +60,11 @@ func parseFontFileAndClose(file io.ReadCloser, gzipped bool) (*Font, string, err
 	var readerCloser *onceCloser
 	if gzipped {
 		gzipReader, err := gzip.NewReader(file)
-		if err != nil { return nil, "", err }
+		if err != nil {
+			return nil, "", err
+		}
 		reader = gzipReader
-		readerCloser = &onceCloser{ gzipReader, false }
+		readerCloser = &onceCloser{gzipReader, false}
 		defer readerCloser.Close()
 	} else {
 		reader = file
@@ -67,11 +73,17 @@ func parseFontFileAndClose(file io.ReadCloser, gzipped bool) (*Font, string, err
 
 	// read font bytes
 	fontBytes, err := io.ReadAll(reader)
-	if err != nil { return nil, "", err }
+	if err != nil {
+		return nil, "", err
+	}
 	err = readerCloser.Close()
-	if err != nil { return nil, "", err }
+	if err != nil {
+		return nil, "", err
+	}
 	err = fileCloser.Close()
-	if err != nil { return nil, "", err }
+	if err != nil {
+		return nil, "", err
+	}
 
 	// create font from bytes and get name
 	return parseRawFontBytes(fontBytes)
@@ -88,19 +100,27 @@ func parseFontFileAndClose(file io.ReadCloser, gzipped bool) (*Font, string, err
 func ParseFontBytes(fontBytes []byte) (*Font, string, error) {
 	if len(fontBytes) >= 2 && fontBytes[0] == 0x1F && fontBytes[1] == 0x8B {
 		gzipReader, err := gzip.NewReader(bytes.NewReader(fontBytes))
-		if err != nil { return nil, "", err }
+		if err != nil {
+			return nil, "", err
+		}
 		fontBytes, err = io.ReadAll(gzipReader)
-		if err != nil { return nil, "", err }
+		if err != nil {
+			return nil, "", err
+		}
 		err = gzipReader.Close()
-		if err != nil { return nil, "", err }
+		if err != nil {
+			return nil, "", err
+		}
 	}
-	
+
 	return parseRawFontBytes(fontBytes)
 }
 
 func parseRawFontBytes(fontBytes []byte) (*Font, string, error) {
 	newFont, err := sfnt.Parse(fontBytes)
-	if err != nil { return nil, "", err }
+	if err != nil {
+		return nil, "", err
+	}
 	fontName, err := FontName(newFont)
 	return newFont, fontName, err
 }
@@ -108,22 +128,32 @@ func parseRawFontBytes(fontBytes []byte) (*Font, string, error) {
 // Applies [GzipFontFile]() to each font of the given directory.
 func GzipDirFonts(fontsDir string, outputDir string) error {
 	absDirPath, err := filepath.Abs(fontsDir)
-	if err != nil { return err }
-	absOutDir,  err := filepath.Abs(outputDir)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
+	absOutDir, err := filepath.Abs(outputDir)
+	if err != nil {
+		return err
+	}
 
 	return filepath.WalkDir(absDirPath,
 		func(path string, info fs.DirEntry, err error) error {
-			if err != nil { return err }
+			if err != nil {
+				return err
+			}
 			if info.IsDir() {
-				if path == absDirPath { return nil }
+				if path == absDirPath {
+					return nil
+				}
 				return fs.SkipDir
 			}
 
 			knownFontExt, gzipped := acceptFontPath(path)
 			if knownFontExt && !gzipped {
 				err := GzipFontFile(path, absOutDir)
-				if err != nil { return err }
+				if err != nil {
+					return err
+				}
 			}
 			return nil
 		})
@@ -141,14 +171,19 @@ func GzipDirFonts(fontsDir string, outputDir string) error {
 //
 // When working on games, sometimes you might prefer to compress directly
 // with a single command:
-//   gzip --keep --best your_font.ttf
+//
+//	gzip --keep --best your_font.ttf
 func GzipFontFile(fontPath string, outDir string) error {
 	// make output dir if it doesn't exist yet
 	info, err := os.Stat(outDir)
-	if err != nil && !errors.Is(err, fs.ErrNotExist) { return err }
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return err
+	}
 	if err != nil { // must be fs.ErrNotExist
 		err = os.Mkdir(outDir, 0700)
-		if err != nil { return err }
+		if err != nil {
+			return err
+		}
 	} else if !info.IsDir() {
 		return errors.New("'" + outDir + "' is not a directory")
 	}
@@ -159,30 +194,42 @@ func GzipFontFile(fontPath string, outDir string) error {
 
 	// open font file
 	fontFile, err := os.Open(fontPath)
-	if err != nil { return err }
-	fontFileCloser := onceCloser{ fontFile, false }
+	if err != nil {
+		return err
+	}
+	fontFileCloser := onceCloser{fontFile, false}
 	defer fontFileCloser.Close()
 
 	// create new compressed font file
 	gzipFile, err := os.Create(outDir + filepath.Base(fontPath) + ".gz")
-	if err != nil { return err }
-	gzipFileCloser := onceCloser{ gzipFile, false }
+	if err != nil {
+		return err
+	}
+	gzipFileCloser := onceCloser{gzipFile, false}
 	defer gzipFileCloser.Close()
 
 	// write new compressed file
 	gzipWriter := gzip.NewWriter(gzipFile) // DefaultCompression is perfectly ok
-	gzipWriterCloser := onceCloser{ gzipWriter, false }
+	gzipWriterCloser := onceCloser{gzipWriter, false}
 	defer gzipWriterCloser.Close()
 	_, err = io.Copy(gzipWriter, fontFile)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 
 	// close everything that can be closed
 	err = gzipWriterCloser.Close()
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	err = gzipFileCloser.Close()
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	err = fontFileCloser.Close()
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -191,9 +238,15 @@ func GzipFontFile(fontPath string, outDir string) error {
 // onceCloser makes it easier to both defer closes (to cover for early error
 // returns) and check close errors manually when done with other operations,
 // without having to suffer from "file already closed" and similar issues.
-type onceCloser struct { closer io.Closer ; alreadyClosed bool }
+type onceCloser struct {
+	closer        io.Closer
+	alreadyClosed bool
+}
+
 func (self *onceCloser) Close() error {
-	if self.alreadyClosed { return nil }
+	if self.alreadyClosed {
+		return nil
+	}
 	self.alreadyClosed = true
 	return self.closer.Close()
 }
@@ -204,7 +257,7 @@ func acceptFontPath(path string) (bool, bool) {
 	gzipped := false
 	if strings.HasSuffix(path, ".gz") {
 		gzipped = true
-		path = path[0 : len(path) - 3]
+		path = path[0 : len(path)-3]
 	}
 
 	validExt := (strings.HasSuffix(path, ".ttf") || strings.HasSuffix(path, ".otf"))

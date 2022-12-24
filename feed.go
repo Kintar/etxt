@@ -15,11 +15,11 @@ import "golang.org/x/image/math/fixed"
 //
 // Valid Feeds can only be created through [Renderer.NewFeed]().
 type Feed struct {
-	renderer *Renderer        // associated renderer
-	Position fixed.Point26_6  // the feed's working position
-	PrevGlyphIndex GlyphIndex // previous glyph index. used for kern.
-	HasPrevGlyph bool         // false after line breaks and others. used for kern.
-	LineBreakX fixed.Int26_6  // the x coordinate set after a line break
+	renderer       *Renderer       // associated renderer
+	Position       fixed.Point26_6 // the feed's working position
+	PrevGlyphIndex GlyphIndex      // previous glyph index. used for kern.
+	HasPrevGlyph   bool            // false after line breaks and others. used for kern.
+	LineBreakX     fixed.Int26_6   // the x coordinate set after a line break
 }
 
 // Draws the given rune and advances the Feed's position.
@@ -36,8 +36,8 @@ func (self *Feed) Draw(codePoint rune) {
 func (self *Feed) DrawGlyph(glyphIndex GlyphIndex) {
 	self.traverseGlyph(glyphIndex,
 		func(dot fixed.Point26_6) {
-				mask := self.renderer.LoadGlyphMask(glyphIndex, dot)
-				self.renderer.DefaultDrawFunc(dot, mask, glyphIndex)
+			mask := self.renderer.LoadGlyphMask(glyphIndex, dot)
+			self.renderer.DefaultDrawFunc(dot, mask, glyphIndex)
 		})
 }
 
@@ -81,7 +81,7 @@ func (self *Feed) traverseGlyph(glyphIndex GlyphIndex, f func(fixed.Point26_6)) 
 	self.Position.Y = self.renderer.quantizeY(self.Position.Y)
 
 	// create the glyph pair and send it to the proper traverse function
-	gpair := glyphPair{ glyphIndex, self.PrevGlyphIndex, self.HasPrevGlyph }
+	gpair := glyphPair{glyphIndex, self.PrevGlyphIndex, self.HasPrevGlyph}
 	switch self.renderer.direction {
 	case RightToLeft:
 		self.Position = self.renderer.traverseGlyphRTL(self.Position, gpair, f)
@@ -91,6 +91,6 @@ func (self *Feed) traverseGlyph(glyphIndex GlyphIndex, f func(fixed.Point26_6)) 
 		panic("unhandled switch case")
 	}
 
-	self.HasPrevGlyph   = true
+	self.HasPrevGlyph = true
 	self.PrevGlyphIndex = glyphIndex
 }

@@ -2,7 +2,7 @@ package ecache
 
 import "golang.org/x/image/math/fixed"
 
-import "github.com/tinne26/etxt/emask"
+import "github.com/Kintar/etxt/emask"
 
 // A GlyphCacheHandler acts as an intermediator between a glyph cache
 // and another object, typically a Renderer, to give the later a clear

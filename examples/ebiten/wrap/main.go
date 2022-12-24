@@ -7,21 +7,21 @@ import "image"
 import "unicode/utf8"
 
 import "golang.org/x/image/math/fixed"
-import "github.com/tinne26/etxt"
+import "github.com/Kintar/etxt"
 import "github.com/hajimehoshi/ebiten/v2"
 
 // The explanation of the example is displayed in the example itself
 // based on the contents of this string:
 const Content = "This example performs basic text wrapping in order to draw text " +
-                "within a delimited area. Additionally, it also shows how to embed " +
-                "the etxt.Renderer type in a custom struct that allows defining our " + 
-                "own methods while also preserving all the original methods of " +
-                "etxt.Renderer.\n\nIn this case, we have added DrawInBox(text string, " +
-                "bounds image.Rectangle). Try to resize the screen and see how the text " + 
-                "adapts to it. You may take this code as a reference and write your own " +
-                "text wrapping functions, as you often will have more specific needs." +
-                "\n\nIn most cases, you will want to add some padding to the bounds to " +
-                "avoid text sticking to the borders of your target text area."
+	"within a delimited area. Additionally, it also shows how to embed " +
+	"the etxt.Renderer type in a custom struct that allows defining our " +
+	"own methods while also preserving all the original methods of " +
+	"etxt.Renderer.\n\nIn this case, we have added DrawInBox(text string, " +
+	"bounds image.Rectangle). Try to resize the screen and see how the text " +
+	"adapts to it. You may take this code as a reference and write your own " +
+	"text wrapping functions, as you often will have more specific needs." +
+	"\n\nIn most cases, you will want to add some padding to the bounds to " +
+	"avoid text sticking to the borders of your target text area."
 
 // Type alias to create an unexported alias of etxt.Renderer.
 // This is quite irrelevant for this example, but it's useful in
@@ -31,7 +31,7 @@ type renderer = etxt.Renderer
 // Wrapper type for etxt.Renderer. Since this type embeds etxt.Renderer
 // it will preserve all its methods, and we can additionally add our own
 // new DrawInBox() method.
-type TextBoxRenderer struct { renderer }
+type TextBoxRenderer struct{ renderer }
 
 // The new method for TextBoxRenderer. It draws the given text within the
 // given bounds, performing basic line wrapping on space " " characters.
@@ -54,11 +54,13 @@ func (self *TextBoxRenderer) DrawInBox(text string, bounds image.Rectangle) {
 	var getNextWord = func(str string, index int) string {
 		start := index
 		for index < len(str) {
-			codePoint, size := utf8.DecodeRuneInString(str[index : ])
-			if codePoint <= ' ' { return str[start : index] }
+			codePoint, size := utf8.DecodeRuneInString(str[index:])
+			if codePoint <= ' ' {
+				return str[start:index]
+			}
 			index += size
 		}
-		return str[start : index]
+		return str[start:index]
 	}
 
 	// create Feed and iterate each rune / word
@@ -81,7 +83,9 @@ func (self *TextBoxRenderer) DrawInBox(text string, bounds image.Rectangle) {
 			}
 
 			// abort if we are going beyond the vertical working area
-			if feed.Position.Y.Floor() >= bounds.Max.Y { return }
+			if feed.Position.Y.Floor() >= bounds.Max.Y {
+				return
+			}
 
 			// draw the word and increase index
 			for _, codePoint := range word {
@@ -99,7 +103,7 @@ type Game struct {
 }
 
 func (self *Game) Layout(w int, h int) (int, int) { return w, h }
-func (self *Game) Update() error { return nil }
+func (self *Game) Update() error                  { return nil }
 func (self *Game) Draw(screen *ebiten.Image) {
 	self.txtRenderer.SetTarget(screen)
 	self.txtRenderer.DrawInBox(Content, screen.Bounds())
@@ -115,14 +119,16 @@ func main() {
 
 	// parse font
 	font, fontName, err := etxt.ParseFontFrom(os.Args[1])
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Font loaded: %s\n", fontName)
 
 	// create cache
-	cache := etxt.NewDefaultCache(1024*1024*1024) // 1GB cache
+	cache := etxt.NewDefaultCache(1024 * 1024 * 1024) // 1GB cache
 
 	// create and configure renderer
-	txtRenderer := &TextBoxRenderer{ *etxt.NewStdRenderer() }
+	txtRenderer := &TextBoxRenderer{*etxt.NewStdRenderer()}
 	txtRenderer.SetCacheHandler(cache.NewHandler())
 	txtRenderer.SetSizePx(16)
 	txtRenderer.SetFont(font)
@@ -132,6 +138,8 @@ func main() {
 	ebiten.SetWindowTitle("etxt/examples/ebiten/wrap")
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	err = ebiten.RunGame(&Game{ txtRenderer })
-	if err != nil { log.Fatal(err) }
+	err = ebiten.RunGame(&Game{txtRenderer})
+	if err != nil {
+		log.Fatal(err)
+	}
 }

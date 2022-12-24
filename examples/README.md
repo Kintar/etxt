@@ -5,24 +5,24 @@ This folder contains two subfolders:
 
 As long as you have Golang installed, you can run the examples directly without any previous step. Almost all the programs expect one argument with a path to the font to use:
 ```
-go run -tags gtxt github.com/tinne26/etxt/examples/gtxt/sizer_expand@latest path/to/your_font.ttf
+go run -tags gtxt github.com/Kintar/etxt/examples/gtxt/sizer_expand@latest path/to/your_font.ttf
 ```
 
 For Ebitengine examples, don't use the `gtxt` tag:
 ```
-go run github.com/tinne26/etxt/examples/ebiten/typewriter@latest path/to/your_font.ttf
+go run github.com/Kintar/etxt/examples/ebiten/typewriter@latest path/to/your_font.ttf
 ```
 
 Below you can see the results of a few examples:
 
 ### gtxt/aligns
-![](https://github.com/tinne26/etxt/blob/main/docs/img/gtxt_aligns.png?raw=true)
+![](https://github.com/Kintar/etxt/blob/main/docs/img/gtxt_aligns.png?raw=true)
 
 ### gtxt/quantization
-![](https://github.com/tinne26/etxt/blob/main/docs/img/gtxt_quantization.png?raw=true)
+![](https://github.com/Kintar/etxt/blob/main/docs/img/gtxt_quantization.png?raw=true)
 
 ### gtxt/outline
-![](https://github.com/tinne26/etxt/blob/main/docs/img/gtxt_outline.png?raw=true)
+![](https://github.com/Kintar/etxt/blob/main/docs/img/gtxt_outline.png?raw=true)
 
 ### gtxt/mirror
-![](https://github.com/tinne26/etxt/blob/main/docs/img/gtxt_mirror.png?raw=true)
+![](https://github.com/Kintar/etxt/blob/main/docs/img/gtxt_mirror.png?raw=true)

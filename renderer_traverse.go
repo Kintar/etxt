@@ -2,7 +2,7 @@ package etxt
 
 import "golang.org/x/image/math/fixed"
 
-import "github.com/tinne26/etxt/efixed"
+import "github.com/Kintar/etxt/efixed"
 
 // Returns a [Feed] object linked to the Renderer.
 //
@@ -15,7 +15,7 @@ import "github.com/tinne26/etxt/efixed"
 // the content had a single line.
 func (self *Renderer) NewFeed(xy fixed.Point26_6) *Feed {
 	xy.Y = self.alignGlyphsDotY(xy.Y)
-	return &Feed { renderer: self, Position: xy, LineBreakX: xy.X }
+	return &Feed{renderer: self, Position: xy, LineBreakX: xy.X}
 }
 
 // During traversal processes, having both the current and previous
@@ -43,13 +43,13 @@ type glyphPair struct {
 // coordinates are unquantized and haven't had kerning applied (as the
 // next glyph is not known yet). Notice that align and text direction
 // can affect the returned coordinate:
-//  - If [HorzAlign] is etxt.[Left], the returned coordinate will
-//    be on the right side of the last character drawn.
-//  - If [HorzAlign] is etxt.[Right], the returned coordinate will
-//    be on the left side of the last character drawn.
-//  - If [HorzAlign] is etxt.[XCenter], the returned coordinate will
-//    be on the right side of the last character drawn if the text direction
-//    is [LeftToRight], or on the left side otherwise.
+//   - If [HorzAlign] is etxt.[Left], the returned coordinate will
+//     be on the right side of the last character drawn.
+//   - If [HorzAlign] is etxt.[Right], the returned coordinate will
+//     be on the left side of the last character drawn.
+//   - If [HorzAlign] is etxt.[XCenter], the returned coordinate will
+//     be on the right side of the last character drawn if the text direction
+//     is [LeftToRight], or on the left side otherwise.
 //
 // This returned coordinate can be useful when implementing bidirectional
 // text renderers, custom multi-style renderers and similar, though for
@@ -62,10 +62,12 @@ func (self *Renderer) Traverse(text string, xy fixed.Point26_6, operation func(f
 	//       behavior, and I doubt anyone will care, but at least it's
 	//       written down.
 
-	if text == "" { return xy } // empty case
+	if text == "" {
+		return xy
+	} // empty case
 
 	// prepare helper variables
-	hasPrevGlyph  := false
+	hasPrevGlyph := false
 	previousIndex := GlyphIndex(0)
 	dir, traverseInReverse := self.traversalMode()
 	traverseFunc := self.getTraverseFunc(dir)
@@ -83,12 +85,16 @@ func (self *Renderer) Traverse(text string, xy fixed.Point26_6, operation func(f
 	// iterate text code points
 	for {
 		codePoint := iterator.Next()
-		if codePoint == -1 { return dot } // end condition
+		if codePoint == -1 {
+			return dot
+		} // end condition
 
 		// handle special line break case by moving the dot
 		if codePoint == '\n' {
 			dot.X = self.quantizeX(dot.X, dir)
-			if !hasPrevGlyph { dot.Y = self.quantizeY(dot.Y) }
+			if !hasPrevGlyph {
+				dot.Y = self.quantizeY(dot.Y)
+			}
 			operation(dot, '\n', 0)
 			dot.Y = self.applyLineAdvance(dot)
 			if self.horzAlign == XCenter {
@@ -108,7 +114,7 @@ func (self *Renderer) Traverse(text string, xy fixed.Point26_6, operation func(f
 
 		// get the glyph index for the current character and traverse it
 		index := self.getGlyphIndex(codePoint)
-		dot = traverseFunc(dot, glyphPair{ index, previousIndex, hasPrevGlyph },
+		dot = traverseFunc(dot, glyphPair{index, previousIndex, hasPrevGlyph},
 			func(opDot fixed.Point26_6) { operation(opDot, codePoint, index) })
 		hasPrevGlyph = true
 		previousIndex = index
@@ -122,10 +128,12 @@ func (self *Renderer) Traverse(text string, xy fixed.Point26_6, operation func(f
 // This method is only relevant when working with complex scripts and using
 // [text shaping].
 //
-// [text shaping]: https://github.com/tinne26/etxt/blob/main/docs/shaping.md
-// [eglyr.Renderer]: https://pkg.go.dev/github.com/tinne26/etxt/eglyr#Renderer
+// [text shaping]: https://github.com/Kintar/etxt/blob/main/docs/shaping.md
+// [eglyr.Renderer]: https://pkg.go.dev/github.com/Kintar/etxt/eglyr#Renderer
 func (self *Renderer) TraverseGlyphs(glyphIndices []GlyphIndex, xy fixed.Point26_6, operation func(fixed.Point26_6, GlyphIndex)) fixed.Point26_6 {
-	if len(glyphIndices) == 0 { return xy } // empty case
+	if len(glyphIndices) == 0 {
+		return xy
+	} // empty case
 
 	// prepare helper variables, aligns, etc
 	previousIndex := GlyphIndex(0)
@@ -134,7 +142,11 @@ func (self *Renderer) TraverseGlyphs(glyphIndices []GlyphIndex, xy fixed.Point26
 	xy.Y = self.alignGlyphsDotY(xy.Y)
 	if self.horzAlign == XCenter { // consider xcenter align
 		hw := (self.SelectionRectGlyphs(glyphIndices).Width >> 1)
-		if dir == LeftToRight { xy.X -= hw } else { xy.X += hw }
+		if dir == LeftToRight {
+			xy.X -= hw
+		} else {
+			xy.X += hw
+		}
 	}
 	self.preFractPositionNotify(xy)
 	xy.X = self.quantizeX(xy.X, dir)
@@ -144,16 +156,18 @@ func (self *Renderer) TraverseGlyphs(glyphIndices []GlyphIndex, xy fixed.Point26
 	// iterate first glyph (with prevGlyph == false)
 	iterator := newGlyphsIterator(glyphIndices, traverseInReverse)
 	index, _ := iterator.Next()
-	dot = traverseFunc(dot, glyphPair{ index, previousIndex, false },
-		func(opDot fixed.Point26_6) { operation(opDot, index)} )
+	dot = traverseFunc(dot, glyphPair{index, previousIndex, false},
+		func(opDot fixed.Point26_6) { operation(opDot, index) })
 	previousIndex = index
 
 	// iterate all remaining glyphs
 	for {
 		index, done := iterator.Next()
-		if done { return dot }
-		dot = traverseFunc(dot, glyphPair{ index, previousIndex, true },
-			func(dot fixed.Point26_6) { operation(dot, index)} )
+		if done {
+			return dot
+		}
+		dot = traverseFunc(dot, glyphPair{index, previousIndex, true},
+			func(dot fixed.Point26_6) { operation(dot, index) })
 		previousIndex = index
 	}
 }
@@ -201,7 +215,9 @@ func (self *Renderer) preFractPositionNotify(dot fixed.Point26_6) {
 
 func (self *Renderer) getGlyphIndex(codePoint rune) GlyphIndex {
 	index, err := self.font.GlyphIndex(&self.buffer, codePoint)
-	if err != nil { panic("font.GlyphIndex error: " + err.Error()) }
+	if err != nil {
+		panic("font.GlyphIndex error: " + err.Error())
+	}
 	if index == 0 {
 		msg := "glyph index for '" + string(codePoint) + "' ["
 		msg += runeToUnicodeCode(codePoint) + "] missing"
@@ -214,15 +230,20 @@ func (self *Renderer) getGlyphIndex(codePoint rune) GlyphIndex {
 // in reverse (from last line character to first).
 func (self *Renderer) traversalMode() (Direction, bool) {
 	switch self.horzAlign {
-	case Left  : return LeftToRight, (self.direction == RightToLeft)
-	case Right : return RightToLeft, (self.direction == LeftToRight)
+	case Left:
+		return LeftToRight, (self.direction == RightToLeft)
+	case Right:
+		return RightToLeft, (self.direction == LeftToRight)
 	}
 	return self.direction, false
 }
 
 type traverseFuncType func(fixed.Point26_6, glyphPair, func(fixed.Point26_6)) fixed.Point26_6
+
 func (self *Renderer) getTraverseFunc(dir Direction) traverseFuncType {
-	if dir == LeftToRight { return self.traverseGlyphLTR }
+	if dir == LeftToRight {
+		return self.traverseGlyphLTR
+	}
 	return self.traverseGlyphRTL
 }
 

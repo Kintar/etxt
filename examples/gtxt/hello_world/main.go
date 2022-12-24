@@ -10,14 +10,14 @@ import "path/filepath"
 import "log"
 import "fmt"
 
-import "github.com/tinne26/etxt"
+import "github.com/Kintar/etxt"
 
 // Must be compiled with '-tags gtxt'
 
 func main() {
-	const OutImgWidth  = 256
+	const OutImgWidth = 256
 	const OutImgHeight = 64
-	const TextSizePx   = 32
+	const TextSizePx = 32
 
 	// get font path
 	if len(os.Args) != 2 {
@@ -28,11 +28,13 @@ func main() {
 
 	// parse font
 	font, fontName, err := etxt.ParseFontFrom(os.Args[1])
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Font loaded: %s\n", fontName)
 
 	// create cache
-	cache := etxt.NewDefaultCache(1024*1024*1024) // 1GB cache
+	cache := etxt.NewDefaultCache(1024 * 1024 * 1024) // 1GB cache
 
 	// create and configure renderer
 	renderer := etxt.NewStdRenderer()
@@ -54,13 +56,21 @@ func main() {
 
 	// store image as png
 	filename, err := filepath.Abs("gtxt_hello_world.png")
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Output image: %s\n", filename)
 	file, err := os.Create(filename)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = png.Encode(file, outImage)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = file.Close()
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Print("Program exited successfully.\n")
 }

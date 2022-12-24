@@ -11,12 +11,12 @@ import "golang.org/x/image/font/sfnt"
 // conform to the [Rasterizer] interface.
 type DefaultRasterizer struct {
 	rasterizer vector.Rasterizer
-	rectOffset image.Point // offset to align the final mask rect to the bounds
+	rectOffset image.Point     // offset to align the final mask rect to the bounds
 	normOffset fixed.Point26_6 // offset to normalize points to the positive
-	                           // quadrant starting from the fractional coords
+	// quadrant starting from the fractional coords
 
 	cacheSignature uint64
-	onChange func(Rasterizer)
+	onChange       func(Rasterizer)
 
 	// Notice that the x/image/vector rasterizer expects coords in the
 	// positive quadrant, which is why we need so many offsets here.
@@ -25,7 +25,9 @@ type DefaultRasterizer struct {
 // Satisfies the [UserCfgCacheSignature] interface.
 func (self *DefaultRasterizer) SetHighByte(value uint8) {
 	self.cacheSignature = uint64(value) << 56
-	if self.onChange != nil { self.onChange(self) }
+	if self.onChange != nil {
+		self.onChange(self)
+	}
 }
 
 // Satisfies the [Rasterizer] interface.
@@ -63,7 +65,7 @@ func (self *DefaultRasterizer) QuadTo(control, target fixed.Point26_6) {
 func (self *DefaultRasterizer) CubeTo(controlA, controlB, target fixed.Point26_6) {
 	cax, cay := self.fixedToFloat32Coords(controlA)
 	cbx, cby := self.fixedToFloat32Coords(controlB)
-	tx , ty  := self.fixedToFloat32Coords(target)
+	tx, ty := self.fixedToFloat32Coords(target)
 	self.rasterizer.CubeTo(cax, cay, cbx, cby, tx, ty)
 }
 
@@ -92,7 +94,7 @@ func (self *DefaultRasterizer) Rasterize(outline sfnt.Segments, fract fixed.Poin
 }
 
 func (self *DefaultRasterizer) fixedToFloat32Coords(point fixed.Point26_6) (float32, float32) {
-	x := float32(point.X + self.normOffset.X)/64
-	y := float32(point.Y + self.normOffset.Y)/64
+	x := float32(point.X+self.normOffset.X) / 64
+	y := float32(point.Y+self.normOffset.Y) / 64
 	return x, y
 }

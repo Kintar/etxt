@@ -15,7 +15,9 @@ const constMaskSizeFactor = 192
 // not known, so the values may not be very representative of actual
 // memory usage. With gtxt, the returned values are precise.
 func GlyphMaskByteSize(mask GlyphMask) uint32 {
-	if mask == nil { return constMaskSizeFactor }
+	if mask == nil {
+		return constMaskSizeFactor
+	}
 	w, h := mask.Size()
 	return maskDimsByteSize(w, h)
 }

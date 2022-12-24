@@ -7,40 +7,40 @@ import "image/color"
 
 import "golang.org/x/image/math/fixed"
 import "github.com/hajimehoshi/ebiten/v2"
-import "github.com/tinne26/etxt"
-import "github.com/tinne26/etxt/esizer"
-import "github.com/tinne26/etxt/ecache"
+import "github.com/Kintar/etxt"
+import "github.com/Kintar/etxt/esizer"
+import "github.com/Kintar/etxt/ecache"
 
 // you can play around with these, but it can get out of hand quite easily
-const SpringText   = "Bouncy!"
-const MinExpansion = 0.34 // must be strictly below 1.0
-const MaxExpansion = 4.0  // must be strictly above 1.0
-const Timescaling  = 0.8/40.0 // make the first factor smaller to slow down
-const Bounciness   = 25.0
+const SpringText = "Bouncy!"
+const MinExpansion = 0.34      // must be strictly below 1.0
+const MaxExpansion = 4.0       // must be strictly above 1.0
+const Timescaling = 0.8 / 40.0 // make the first factor smaller to slow down
+const Bounciness = 25.0
 
 type Game struct {
 	txtRenderer *etxt.Renderer
 
 	// spring related variables
 	restLength float64
-	textLen float64 // number of code points in SpringText - 1
-	expansion float64 // between MinExpansion - MaxExpansion
-	inertia float64
-	holdX int
-	holding bool
+	textLen    float64 // number of code points in SpringText - 1
+	expansion  float64 // between MinExpansion - MaxExpansion
+	inertia    float64
+	holdX      int
+	holding    bool
 }
 
 func NewGame(renderer *etxt.Renderer) *Game {
 	textRect := renderer.SelectionRect(SpringText)
 	precacheText(renderer) // not necessary, but a useful example
-	return &Game {
+	return &Game{
 		txtRenderer: renderer,
-		restLength: float64(textRect.Width)/64,
-		textLen: float64(len([]rune(SpringText))),
-		expansion: 1.0,
-		inertia: 0.0,
-		holdX: 0,
-		holding: false,
+		restLength:  float64(textRect.Width) / 64,
+		textLen:     float64(len([]rune(SpringText))),
+		expansion:   1.0,
+		inertia:     0.0,
+		holdX:       0,
+		holding:     false,
 	}
 }
 
@@ -61,25 +61,29 @@ func (self *Game) Update() error {
 			newHold, _ := ebiten.CursorPosition()
 			diff := newHold - self.holdX
 			self.holdX = newHold
-			expansionChange := float64(diff)/self.restLength
+			expansionChange := float64(diff) / self.restLength
 			self.expansion += expansionChange
-			if self.expansion < MinExpansion { self.expansion = MinExpansion }
-			if self.expansion > MaxExpansion { self.expansion = MaxExpansion }
+			if self.expansion < MinExpansion {
+				self.expansion = MinExpansion
+			}
+			if self.expansion > MaxExpansion {
+				self.expansion = MaxExpansion
+			}
 		}
 	} else { // spring simulation
 		self.holding = false
 		var tension float64
-		workingLength := (MaxExpansion - MinExpansion)*self.restLength
+		workingLength := (MaxExpansion - MinExpansion) * self.restLength
 		if self.expansion < 1.0 {
-			tension = ((1.0 - self.expansion)/(1.0 - MinExpansion))*workingLength
+			tension = ((1.0 - self.expansion) / (1.0 - MinExpansion)) * workingLength
 		} else { // expansion >= 1.0
-			tension = -((self.expansion - 1.0)/(MaxExpansion - 1.0))*workingLength
+			tension = -((self.expansion - 1.0) / (MaxExpansion - 1.0)) * workingLength
 		}
 
 		// apply movement and update inertia
-		movement := (self.inertia + tension)*Timescaling
-		self.inertia += Bounciness*tension*Timescaling
-		self.expansion = self.expansion + (movement/self.restLength)
+		movement := (self.inertia + tension) * Timescaling
+		self.inertia += Bounciness * tension * Timescaling
+		self.expansion = self.expansion + (movement / self.restLength)
 
 		// clamp expansion if it went outside range
 		if self.expansion < MinExpansion {
@@ -100,17 +104,19 @@ func (self *Game) Update() error {
 // may be interesting too as general usage examples.
 func (self *Game) Draw(screen *ebiten.Image) {
 	// dark background
-	screen.Fill(color.RGBA{ 0, 0, 0, 255 })
+	screen.Fill(color.RGBA{0, 0, 0, 255})
 
 	// get and adjust sizer (we could have stored it earlier too)
 	sizer := self.txtRenderer.GetSizer().(*esizer.HorzPaddingSizer)
-	sizer.SetHorzPaddingFloat((self.expansion*self.restLength - self.restLength)/self.textLen)
+	sizer.SetHorzPaddingFloat((self.expansion*self.restLength - self.restLength) / self.textLen)
 
 	// get some values that we will use later
 	w, h := screen.Size()
 	preVertAlign, preHorzAlign := self.txtRenderer.GetAlign()
 	startX := 16
-	if preHorzAlign == etxt.XCenter { startX = w/2 }
+	if preHorzAlign == etxt.XCenter {
+		startX = w / 2
+	}
 
 	// draw text
 	self.txtRenderer.SetTarget(screen)
@@ -123,11 +129,13 @@ func (self *Game) Draw(screen *ebiten.Image) {
 	self.txtRenderer.SetColor(color.RGBA{255, 255, 255, 128})
 	self.txtRenderer.SetAlign(etxt.Baseline, etxt.Right)
 	self.txtRenderer.SetSizePx(14)
-	self.txtRenderer.Draw(fmt.Sprintf("%.2f FPS", ebiten.CurrentFPS()), w - 8, h - 8)
+	self.txtRenderer.Draw(fmt.Sprintf("%.2f FPS", ebiten.CurrentFPS()), w-8, h-8)
 	self.txtRenderer.SetHorzAlign(etxt.Left)
 	txt := "click and drag horizontally to interact"
-	if self.holding { txt += " (holding)"}
-	self.txtRenderer.Draw(txt, 8, h - 8)
+	if self.holding {
+		txt += " (holding)"
+	}
+	self.txtRenderer.Draw(txt, 8, h-8)
 
 	// restore renderer state after fps/instructions
 	self.txtRenderer.SetColor(color.RGBA{255, 255, 255, 255})
@@ -145,11 +153,13 @@ func main() {
 
 	// parse font
 	font, fontName, err := etxt.ParseFontFrom(os.Args[1])
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Font loaded: %s\n", fontName)
 
 	// create cache
-	cache := etxt.NewDefaultCache(1024*1024*1024) // 1GB cache
+	cache := etxt.NewDefaultCache(1024 * 1024 * 1024) // 1GB cache
 
 	// create and configure renderer
 	renderer := etxt.NewStdRenderer()
@@ -170,7 +180,9 @@ func main() {
 	ebiten.SetWindowTitle("etxt/examples/ebiten/elastic")
 	ebiten.SetWindowSize(840, 360)
 	err = ebiten.RunGame(NewGame(renderer))
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // This code has been added mostly to provide an example of how to manually
@@ -191,6 +203,6 @@ func precacheText(renderer *etxt.Renderer) {
 	// print info about cache size
 	cacheHandler := renderer.GetCacheHandler().(*ecache.DefaultCacheHandler)
 	peakSize := cacheHandler.PeakCacheSize()
-	mbSize := float64(peakSize)/1024/1024
+	mbSize := float64(peakSize) / 1024 / 1024
 	fmt.Printf("Cache size after pre-caching: %d bytes (%.2fMB)\n", peakSize, mbSize)
 }

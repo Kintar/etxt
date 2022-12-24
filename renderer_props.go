@@ -7,10 +7,10 @@ import "golang.org/x/image/math/fixed"
 import "golang.org/x/image/font"
 import "golang.org/x/image/font/sfnt"
 
-import "github.com/tinne26/etxt/efixed"
-import "github.com/tinne26/etxt/emask"
-import "github.com/tinne26/etxt/ecache"
-import "github.com/tinne26/etxt/esizer"
+import "github.com/Kintar/etxt/efixed"
+import "github.com/Kintar/etxt/emask"
+import "github.com/Kintar/etxt/ecache"
+import "github.com/Kintar/etxt/esizer"
 
 // This file contains the Renderer type definition and all the
 // getter and setter methods. Actual operations are split in other
@@ -22,41 +22,41 @@ import "github.com/tinne26/etxt/esizer"
 // alignment and more from a single place.
 //
 // Basic usage goes like this:
-//  - Create, configure and store a renderer.
-//  - Use [Renderer.SetTarget]() and then [Renderer.Draw]() as many times
-//    as needed.
-//  - Re-adjust the properties of the renderer if needed... and keep drawing!
+//   - Create, configure and store a renderer.
+//   - Use [Renderer.SetTarget]() and then [Renderer.Draw]() as many times
+//     as needed.
+//   - Re-adjust the properties of the renderer if needed... and keep drawing!
 //
 // If you need more advice or guidance, check the [renderers document]
 // and the [examples].
 //
-// [renderers document]: https://github.com/tinne26/etxt/blob/main/docs/renderer.md
-// [examples]: https://github.com/tinne26/etxt/tree/main/examples
+// [renderers document]: https://github.com/Kintar/etxt/blob/main/docs/renderer.md
+// [examples]: https://github.com/Kintar/etxt/tree/main/examples
 type Renderer struct {
-	font *Font
-	target TargetImage
+	font      *Font
+	target    TargetImage
 	mainColor color.Color
-	sizer esizer.Sizer
+	sizer     esizer.Sizer
 
-	vertAlign VertAlign
-	horzAlign HorzAlign
-	direction Direction
+	vertAlign           VertAlign
+	horzAlign           HorzAlign
+	direction           Direction
 	lineAdvanceIsCached bool
 
 	horzQuantStep uint8
 	vertQuantStep uint8
-	_ uint8
-	mixMode MixMode
+	_             uint8
+	mixMode       MixMode
 
-	sizePx fixed.Int26_6
-	lineSpacing fixed.Int26_6 // 64 by default (which is 1 in 26_6)
-	lineHeight  fixed.Int26_6 // non-negative value or -1 to match font height
+	sizePx            fixed.Int26_6
+	lineSpacing       fixed.Int26_6 // 64 by default (which is 1 in 26_6)
+	lineHeight        fixed.Int26_6 // non-negative value or -1 to match font height
 	cachedLineAdvance fixed.Int26_6
 
 	cacheHandler ecache.GlyphCacheHandler
-	rasterizer emask.Rasterizer
-	metrics *font.Metrics // cached for the current font and size
-	buffer sfnt.Buffer
+	rasterizer   emask.Rasterizer
+	metrics      *font.Metrics // cached for the current font and size
+	buffer       sfnt.Buffer
 }
 
 // Creates a new renderer with the default vector rasterizer.
@@ -76,18 +76,18 @@ func NewStdRenderer() *Renderer {
 // Renderers are not safe for concurrent use.
 func NewRenderer(rasterizer emask.Rasterizer) *Renderer {
 	return &Renderer{
-		sizer: &esizer.DefaultSizer{},
-		vertAlign: Baseline,
-		horzAlign: Left,
-		direction: LeftToRight,
+		sizer:         &esizer.DefaultSizer{},
+		vertAlign:     Baseline,
+		horzAlign:     Left,
+		direction:     LeftToRight,
 		horzQuantStep: 64,
 		vertQuantStep: 64,
-		lineSpacing: fixed.Int26_6(1 << 6),
-		lineHeight: -1,
-		sizePx: fixed.I(16),
-		rasterizer: rasterizer,
-		mainColor: color.RGBA{ 255, 255, 255, 255 },
-		mixMode: defaultMixMode,
+		lineSpacing:   fixed.Int26_6(1 << 6),
+		lineHeight:    -1,
+		sizePx:        fixed.I(16),
+		rasterizer:    rasterizer,
+		mainColor:     color.RGBA{255, 255, 255, 255},
+		mixMode:       defaultMixMode,
 	}
 }
 
@@ -98,7 +98,9 @@ func (self *Renderer) SetFont(font *Font) {
 	//         only if you *really really have to ensure* that the
 	//         font can be released by the garbage collector while
 	//         this renderer still exists... which is almost never.
-	if font == self.font { return }
+	if font == self.font {
+		return
+	}
 	self.font = font
 	if self.cacheHandler != nil {
 		self.cacheHandler.NotifyFontChange(font)
@@ -142,9 +144,9 @@ func (self *Renderer) GetColor() color.Color { return self.mainColor }
 // rendering and measurement operations, in 1/64th parts of a pixel.
 //
 // At minimum granularity (step = 1), glyphs will be laid out
-// without any changes to their advances and kerns, fully respecting 
+// without any changes to their advances and kerns, fully respecting
 // the font's intended spacing and flow.
-// 
+//
 // At maximum granularity (step = 64), glyphs will be effectively
 // quantized to the pixel grid instead. This is the default value.
 //
@@ -157,10 +159,14 @@ func (self *Renderer) GetColor() color.Color { return self.mainColor }
 //
 // For more details, read the [quantization document].
 //
-// [quantization document]: https://github.com/tinne26/etxt/blob/main/docs/quantization.md
+// [quantization document]: https://github.com/Kintar/etxt/blob/main/docs/quantization.md
 func (self *Renderer) SetQuantizerStep(horzStep fixed.Int26_6, vertStep fixed.Int26_6) {
-	if horzStep < 1 || horzStep > 64 { panic("horzStep outside the [1, 64] range") }
-	if vertStep < 1 || vertStep > 64 { panic("vertStep outside the [1, 64] range") }
+	if horzStep < 1 || horzStep > 64 {
+		panic("horzStep outside the [1, 64] range")
+	}
+	if vertStep < 1 || vertStep > 64 {
+		panic("vertStep outside the [1, 64] range")
+	}
 	self.horzQuantStep = uint8(horzStep)
 	self.vertQuantStep = uint8(vertStep)
 }
@@ -179,8 +185,9 @@ func (self *Renderer) GetCacheHandler() ecache.GlyphCacheHandler {
 
 // Sets the glyph cache handler used by the renderer. By default,
 // no cache is used, but you almost always want to set one, e.g.:
-//   cache := etxt.NewDefaultCache(16*1024*1024) // 16MB
-//   textRenderer.SetCacheHandler(cache.NewHandler())
+//
+//	cache := etxt.NewDefaultCache(16*1024*1024) // 16MB
+//	textRenderer.SetCacheHandler(cache.NewHandler())
 //
 // A cache handler can only be used with a single renderer, but you
 // can create multiple handlers from the same underlying cache and
@@ -189,7 +196,9 @@ func (self *Renderer) SetCacheHandler(cacheHandler ecache.GlyphCacheHandler) {
 	self.cacheHandler = cacheHandler
 
 	if cacheHandler == nil {
-		if self.rasterizer != nil { self.rasterizer.SetOnChangeFunc(nil) }
+		if self.rasterizer != nil {
+			self.rasterizer.SetOnChangeFunc(nil)
+		}
 		return
 	}
 
@@ -198,7 +207,9 @@ func (self *Renderer) SetCacheHandler(cacheHandler ecache.GlyphCacheHandler) {
 	}
 
 	cacheHandler.NotifySizeChange(self.sizePx)
-	if self.font != nil { cacheHandler.NotifyFontChange(self.font) }
+	if self.font != nil {
+		cacheHandler.NotifyFontChange(self.font)
+	}
 	if self.rasterizer != nil {
 		cacheHandler.NotifyRasterizerChange(self.rasterizer)
 	}
@@ -244,12 +255,12 @@ func (self *Renderer) SetRasterizer(rasterizer emask.Rasterizer) {
 // The relationship between font size and the size of its glyphs
 // is complicated and can vary a lot between fonts, but
 // to provide a [general reference]:
-//  - A capital latin letter is usually around 70% as tall as
-//    the given size. E.g.: at 16px, "A" will be 10-12px tall.
-//  - A lowercase latin letter is usually around 48% as tall as
-//    the given size. E.g.: at 16px, "x" will be 7-9px tall.
+//   - A capital latin letter is usually around 70% as tall as
+//     the given size. E.g.: at 16px, "A" will be 10-12px tall.
+//   - A lowercase latin letter is usually around 48% as tall as
+//     the given size. E.g.: at 16px, "x" will be 7-9px tall.
 //
-// [general reference]: https://github.com/tinne26/etxt/blob/main/docs/px-size.md
+// [general reference]: https://github.com/Kintar/etxt/blob/main/docs/px-size.md
 func (self *Renderer) SetSizePx(sizePx int) {
 	self.SetSizePxFract(fixed.Int26_6(sizePx << 6))
 }
@@ -262,15 +273,19 @@ func (self *Renderer) SetSizePx(sizePx int) {
 // Like [Renderer.SetSizePx], but accepting a fractional pixel size in
 // the form of a [26.6 fixed point] integer.
 //
-// [26.6 fixed point]: https://github.com/tinne26/etxt/blob/main/docs/fixed-26-6.md
+// [26.6 fixed point]: https://github.com/Kintar/etxt/blob/main/docs/fixed-26-6.md
 func (self *Renderer) SetSizePxFract(sizePx fixed.Int26_6) {
-	if sizePx < 64 { panic("sizePx must be >= 1") }
-	if sizePx == self.sizePx { return }
+	if sizePx < 64 {
+		panic("sizePx must be >= 1")
+	}
+	if sizePx == self.sizePx {
+		return
+	}
 
 	// set new size and check it's in range
 	// (we are artificially limiting sizes so glyphs don't take
-   // more than ~1GB on ebiten or ~0.25GB as alpha images. Even
-   // at those levels most computers will choke to death if they
+	// more than ~1GB on ebiten or ~0.25GB as alpha images. Even
+	// at those levels most computers will choke to death if they
 	// try to render multiple characters, but I tried...)
 	self.sizePx = sizePx
 	if self.sizePx & ^fixed.Int26_6(0x000FFFFF) != 0 {
@@ -289,7 +304,7 @@ func (self *Renderer) SetSizePxFract(sizePx fixed.Int26_6) {
 
 // Returns the current font size as a [fixed.Int26_6].
 //
-// [fixed.Int26_6]: https://github.com/tinne26/etxt/blob/main/docs/fixed-26-6.md
+// [fixed.Int26_6]: https://github.com/Kintar/etxt/blob/main/docs/fixed-26-6.md
 func (self *Renderer) GetSizePxFract() fixed.Int26_6 {
 	return self.sizePx
 }
@@ -350,11 +365,15 @@ func (self *Renderer) SetLineSpacing(factor float64) {
 //
 // For more context, see [Renderer.SetLineHeight]() and [Renderer.SetLineSpacing]().
 func (self *Renderer) GetLineAdvance() fixed.Int26_6 {
-	if self.lineAdvanceIsCached { return self.cachedLineAdvance }
+	if self.lineAdvanceIsCached {
+		return self.cachedLineAdvance
+	}
 
 	var newLineAdvance fixed.Int26_6
 	if self.lineHeight == -1 { // auto mode (match font height)
-		if self.metrics == nil { self.updateMetrics() }
+		if self.metrics == nil {
+			self.updateMetrics()
+		}
 		if self.lineSpacing == 64 { // fast common case
 			newLineAdvance = self.metrics.Height
 		} else {
@@ -363,13 +382,13 @@ func (self *Renderer) GetLineAdvance() fixed.Int26_6 {
 			//       In our case, only one value can be negative (lineSpacing),
 			//       see if the current approach is biased or determine what's
 			//       the appropriate bias (maybe round down on negative)
-			newLineAdvance = fixed.Int26_6((int64(self.metrics.Height)*int64(self.lineSpacing)) >> 6)
+			newLineAdvance = fixed.Int26_6((int64(self.metrics.Height) * int64(self.lineSpacing)) >> 6)
 		}
 	} else { // manual mode, use stored line height
 		if self.lineSpacing == 64 { // fast case
 			newLineAdvance = self.lineHeight
 		} else {
-			newLineAdvance = fixed.Int26_6((int64(self.lineHeight)*int64(self.lineSpacing)) >> 6)
+			newLineAdvance = fixed.Int26_6((int64(self.lineHeight) * int64(self.lineSpacing)) >> 6)
 		}
 	}
 
@@ -380,29 +399,33 @@ func (self *Renderer) GetLineAdvance() fixed.Int26_6 {
 
 // See documentation for [Renderer.SetAlign]().
 func (self *Renderer) SetVertAlign(vertAlign VertAlign) {
-	if vertAlign < Top || vertAlign > Bottom { panic("bad VertAlign") }
+	if vertAlign < Top || vertAlign > Bottom {
+		panic("bad VertAlign")
+	}
 	self.vertAlign = vertAlign
 }
 
 // See documentation for [Renderer.SetAlign]().
 func (self *Renderer) SetHorzAlign(horzAlign HorzAlign) {
-	if horzAlign < Left || horzAlign > Right { panic("bad HorzAlign") }
+	if horzAlign < Left || horzAlign > Right {
+		panic("bad HorzAlign")
+	}
 	self.horzAlign = horzAlign
 }
 
 // Configures how [Renderer.Draw]*() coordinates will be interpreted. For example:
-//  - If the alignment is set to (etxt.[Top], etxt.[Left]), coordinates
-//    passed to subsequent operations will be interpreted as the
-//    top-left corner of the box in which the text has to be drawn.
-//  - If the alignment is set to (etxt.[YCenter], etxt.[XCenter]), coordinates
-//    passed to subsequent operations will be interpreted
-//    as the center of the box in which the text has to be drawn.
+//   - If the alignment is set to (etxt.[Top], etxt.[Left]), coordinates
+//     passed to subsequent operations will be interpreted as the
+//     top-left corner of the box in which the text has to be drawn.
+//   - If the alignment is set to (etxt.[YCenter], etxt.[XCenter]), coordinates
+//     passed to subsequent operations will be interpreted
+//     as the center of the box in which the text has to be drawn.
 //
 // Check out [this image] for a visual explanation instead.
 //
 // By default, the renderer's alignment is (etxt.[Baseline], etxt.[Left]).
 //
-// [this image]: https://github.com/tinne26/etxt/blob/main/docs/img/gtxt_aligns.png
+// [this image]: https://github.com/Kintar/etxt/blob/main/docs/img/gtxt_aligns.png
 func (self *Renderer) SetAlign(vertAlign VertAlign, horzAlign HorzAlign) {
 	self.SetVertAlign(vertAlign)
 	self.SetHorzAlign(horzAlign)
@@ -418,7 +441,9 @@ func (self *Renderer) GetAlign() (VertAlign, HorzAlign) {
 //
 // By default, the direction is [LeftToRight].
 func (self *Renderer) SetDirection(dir Direction) {
-	if dir != LeftToRight && dir != RightToLeft { panic("bad direction") }
+	if dir != LeftToRight && dir != RightToLeft {
+		panic("bad direction")
+	}
 	self.direction = dir
 }
 
@@ -434,7 +459,9 @@ func (self *Renderer) GetSizer() esizer.Sizer {
 // As [Renderer.GetSizer]() documentation explains, you rarely
 // need to care about or even know what sizers are.
 func (self *Renderer) SetSizer(sizer esizer.Sizer) {
-	if sizer == nil { panic("nil sizer") }
+	if sizer == nil {
+		panic("nil sizer")
+	}
 	self.sizer = sizer
 }
 

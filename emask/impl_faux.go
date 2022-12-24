@@ -9,7 +9,7 @@ import "golang.org/x/image/vector"
 import "golang.org/x/image/math/fixed"
 import "golang.org/x/image/font/sfnt"
 
-import "github.com/tinne26/etxt/efixed"
+import "github.com/Kintar/etxt/efixed"
 
 // A rasterizer to draw oblique and faux-bold text. For high quality
 // results, please use the font's italic and bold versions directly
@@ -27,25 +27,25 @@ import "github.com/tinne26/etxt/efixed"
 // (faux-bold).
 type FauxRasterizer struct {
 	// same fields as DefaultRasterizer
-	rasterizer vector.Rasterizer
-	onChange func(Rasterizer)
-	auxOnChange func(*FauxRasterizer)
-	maskAdjust image.Point
+	rasterizer     vector.Rasterizer
+	onChange       func(Rasterizer)
+	auxOnChange    func(*FauxRasterizer)
+	maskAdjust     image.Point
 	cacheSignature uint64
-	normOffsetX float64
-	normOffsetY float64
-	hasInitSig bool // flag for initialized signature
+	normOffsetX    float64
+	normOffsetY    float64
+	hasInitSig     bool // flag for initialized signature
 
 	skewing float64 // between -1 (45 degrees) and 1 (-45 degrees)
-	                // (quantized to be representable without loss
-					    //  in 16 bits)
+	// (quantized to be representable without loss
+	//  in 16 bits)
 
 	// extra width (faux-bold) related fields
-	xwidth float64
-	xwidthFract float64 // the fractional part of xwidth (quantized to 1/64ths)
-	xwidthWhole uint16  // the whole part of xwidth
+	xwidth        float64
+	xwidthFract   float64 // the fractional part of xwidth (quantized to 1/64ths)
+	xwidthWhole   uint16  // the whole part of xwidth
 	xwidthTailMod uint16
-	xwidthTail []uint8 // internal implementation detail
+	xwidthTail    []uint8 // internal implementation detail
 }
 
 // Sets the oblique skewing factor. Values outside the [-1, 1] range will
@@ -57,24 +57,38 @@ type FauxRasterizer struct {
 func (self *FauxRasterizer) SetSkewFactor(factor float64) {
 	// normalize and store new skewing factor
 	if factor == 0 {
-		if self.skewing == 0 { return }
+		if self.skewing == 0 {
+			return
+		}
 		self.skewing = 0
 		self.cacheSignature = self.cacheSignature & 0xFFFF0FFF0000FFFF
 	} else {
-		if factor >  1.0 { factor =  1.0 }
-		if factor < -1.0 { factor = -1.0 }
-		quantized := int32(factor*32768)
-		if quantized == 0 {
-			if factor > 0 { quantized =  1 }
-			if factor < 0 { quantized = -1 }
+		if factor > 1.0 {
+			factor = 1.0
 		}
-		newSkewing := float64(quantized)/32768
-		if self.skewing == newSkewing { return }
+		if factor < -1.0 {
+			factor = -1.0
+		}
+		quantized := int32(factor * 32768)
+		if quantized == 0 {
+			if factor > 0 {
+				quantized = 1
+			}
+			if factor < 0 {
+				quantized = -1
+			}
+		}
+		newSkewing := float64(quantized) / 32768
+		if self.skewing == newSkewing {
+			return
+		}
 		self.skewing = newSkewing
 
 		// update cache signature
 		offset := int32(32768)
-		if quantized > 0 { offset = 32767 } // allow reaching 1 skew factor
+		if quantized > 0 {
+			offset = 32767
+		} // allow reaching 1 skew factor
 		sigMark := uint16(quantized + offset)
 		self.cacheSignature = self.cacheSignature & 0xFFFF0FFF0000FFFF
 		self.cacheSignature |= 0x0000100000000000 // flag for "active italics"
@@ -100,20 +114,28 @@ func (self *FauxRasterizer) GetSkewFactor() float64 { return self.skewing }
 func (self *FauxRasterizer) SetExtraWidth(extraWidth float64) {
 	// normalize and store new skewing factor
 	if extraWidth <= 0 {
-		if self.xwidth == 0 { return } // shortcut
+		if self.xwidth == 0 {
+			return
+		} // shortcut
 		self.xwidth = 0
 		self.xwidthWhole = 0
 		self.xwidthFract = 0
 		self.cacheSignature = self.cacheSignature & 0xFFF0FFFFFFFF0000
 	} else {
-		if extraWidth > 1024.0 { extraWidth = 1024 }
-		quantized := uint32(extraWidth*64)
+		if extraWidth > 1024.0 {
+			extraWidth = 1024
+		}
+		quantized := uint32(extraWidth * 64)
 		if quantized >= 65536 {
 			quantized = 65535
 		}
-		if quantized == 0 { quantized = 1 }
-		newExtraWidth := float64(quantized)/64
-		if self.xwidth == newExtraWidth { return } // shortcut
+		if quantized == 0 {
+			quantized = 1
+		}
+		newExtraWidth := float64(quantized) / 64
+		if self.xwidth == newExtraWidth {
+			return
+		} // shortcut
 		self.xwidth = newExtraWidth
 
 		// compute whole part for the given extra width
@@ -126,10 +148,12 @@ func (self *FauxRasterizer) SetExtraWidth(extraWidth float64) {
 				self.xwidthTailMod = 7
 			} else {
 				targetSize := uint16RoundToNextPow2(self.xwidthWhole)
-				if targetSize == 1 { panic("unreachable") }
+				if targetSize == 1 {
+					panic("unreachable")
+				}
 				self.xwidthTailMod = targetSize - 1
 				if uint16(cap(self.xwidthTail)) >= targetSize {
-					self.xwidthTail = self.xwidthTail[0 : targetSize]
+					self.xwidthTail = self.xwidthTail[0:targetSize]
 				} else {
 					self.xwidthTail = make([]uint8, targetSize)
 				}
@@ -148,8 +172,12 @@ func (self *FauxRasterizer) SetExtraWidth(extraWidth float64) {
 // round the given uint16 to the next power of two (stays
 // as it is if the value is already a power of two)
 func uint16RoundToNextPow2(value uint16) uint16 {
-	if value == 1 { return 2 }
-	if bits.OnesCount16(value) <= 1 { return value } // (already a pow2)
+	if value == 1 {
+		return 2
+	}
+	if bits.OnesCount16(value) <= 1 {
+		return value
+	} // (already a pow2)
 	return uint16(1) << (16 - bits.LeadingZeros16(value))
 }
 
@@ -166,15 +194,15 @@ func (self *FauxRasterizer) SetHighByte(value uint8) {
 
 // Satisfies the [Rasterizer] interface. The cache signature for the
 // faux rasterizer has the following shape:
-//  - 0xFF00000000000000 bits for [UserCfgCacheSignature]'s high byte.
-//  - 0x00FF000000000000 bits being 0xFA (self signature byte).
-//  - 0x0000F00000000000 bits being 0x1 if italics are enabled.
-//  - 0x00000F0000000000 bits being 0xB if bold is enabled.
-//  - 0x00000000FFFF0000 bits encoding the skewing [-1, 1] as [0, 65535],
-//    with the zero skewing not having a representation here (signatures
-//    are still different due to the "italics-enabled" flag).
-//  - 0x000000000000FFFF bits encoding the extra bold width in 64ths of
-//    a pixel and encoded as a uint16.
+//   - 0xFF00000000000000 bits for [UserCfgCacheSignature]'s high byte.
+//   - 0x00FF000000000000 bits being 0xFA (self signature byte).
+//   - 0x0000F00000000000 bits being 0x1 if italics are enabled.
+//   - 0x00000F0000000000 bits being 0xB if bold is enabled.
+//   - 0x00000000FFFF0000 bits encoding the skewing [-1, 1] as [0, 65535],
+//     with the zero skewing not having a representation here (signatures
+//     are still different due to the "italics-enabled" flag).
+//   - 0x000000000000FFFF bits encoding the extra bold width in 64ths of
+//     a pixel and encoded as a uint16.
 func (self *FauxRasterizer) CacheSignature() uint64 {
 	// initialize "FA" signature (standing for FAUX) bits if relevant
 	if !self.hasInitSig {
@@ -188,8 +216,8 @@ func (self *FauxRasterizer) CacheSignature() uint64 {
 
 func (self *FauxRasterizer) fixedToFloat32Coords(point fixed.Point26_6) (float32, float32) {
 	// apply skewing here!
-	fx := float64(point.X)/64
-	fy := float64(point.Y)/64
+	fx := float64(point.X) / 64
+	fy := float64(point.Y) / 64
 	x := fx - fy*self.skewing + self.normOffsetX
 	y := fy + self.normOffsetY
 	return float32(x), float32(y)
@@ -217,8 +245,12 @@ func (self *FauxRasterizer) SetAuxOnChangeFunc(onChange func(*FauxRasterizer)) {
 }
 
 func (self *FauxRasterizer) notifyChange() {
-	if self.onChange    != nil { self.onChange(self)    }
-	if self.auxOnChange != nil { self.auxOnChange(self) }
+	if self.onChange != nil {
+		self.onChange(self)
+	}
+	if self.auxOnChange != nil {
+		self.auxOnChange(self)
+	}
 }
 
 func (self *FauxRasterizer) newOutline(outline sfnt.Segments, fract fixed.Point26_6) error {
@@ -226,8 +258,8 @@ func (self *FauxRasterizer) newOutline(outline sfnt.Segments, fract fixed.Point2
 
 	// adjust the bounds accounting for skewing
 	if self.skewing != 0 {
-		shiftA := efixed.FromFloat64RoundAwayZero((float64(glyphBounds.Min.Y)/64)*self.skewing)
-		shiftB := efixed.FromFloat64RoundAwayZero((float64(glyphBounds.Max.Y)/64)*self.skewing)
+		shiftA := efixed.FromFloat64RoundAwayZero((float64(glyphBounds.Min.Y) / 64) * self.skewing)
+		shiftB := efixed.FromFloat64RoundAwayZero((float64(glyphBounds.Max.Y) / 64) * self.skewing)
 		if self.skewing >= 0 { // don't make me explain...
 			glyphBounds.Min.X -= shiftB
 			glyphBounds.Max.X -= shiftA
@@ -245,8 +277,8 @@ func (self *FauxRasterizer) newOutline(outline sfnt.Segments, fract fixed.Point2
 	// similar to default rasterizer
 	size, normOffset, adjust := figureOutBounds(glyphBounds, fract)
 	self.maskAdjust = adjust
-	self.normOffsetX = float64(normOffset.X)/64
-	self.normOffsetY = float64(normOffset.Y)/64
+	self.normOffsetX = float64(normOffset.X) / 64
+	self.normOffsetY = float64(normOffset.Y) / 64
 	self.rasterizer.Reset(size.X, size.Y)
 	self.rasterizer.DrawOp = draw.Src
 	return nil
@@ -266,7 +298,7 @@ func (self *FauxRasterizer) newOutline(outline sfnt.Segments, fract fixed.Point2
 func (self *FauxRasterizer) applyExtraWidth(pixels []uint8, stride int) {
 	// extra width is applied independently to each row
 	for x := 0; x < len(pixels); x += stride {
-		self.applyRowExtraWidth(pixels[x : x + stride], pixels, x, stride)
+		self.applyRowExtraWidth(pixels[x:x+stride], pixels, x, stride)
 	}
 }
 
@@ -279,29 +311,41 @@ func (self *FauxRasterizer) applyRowExtraWidth(row []uint8, pixels []uint8, star
 	// mostly as a keep-max-of-last-n-alpha-values.
 	for index := 0; index < len(row); {
 		index, peakAlpha = self.extraWidthRowAscend(row, index)
-		if peakAlpha == 0 { return }
+		if peakAlpha == 0 {
+			return
+		}
 		peakAlpha, twoPixSwap = self.peakAlphaFix(row, index, pixels, start, stride, peakAlpha)
 		index = self.extraWidthRowFall(row, index, peakAlpha, twoPixSwap)
 	}
 }
 
 func (self *FauxRasterizer) peakAlphaFix(row []uint8, index int, pixels []uint8, start int, stride int, peakAlpha uint8) (uint8, bool) {
-	if peakAlpha == 255 || self.xwidthWhole == 0 { return peakAlpha, false }
+	if peakAlpha == 255 || self.xwidthWhole == 0 {
+		return peakAlpha, false
+	}
 
 	// check boundaries
-	if index < 2 { return peakAlpha, false }
-	if index + 1 >= len(row) { return peakAlpha, false }
+	if index < 2 {
+		return peakAlpha, false
+	}
+	if index+1 >= len(row) {
+		return peakAlpha, false
+	}
 	aboveIndex := (start + index - 1 - stride)
 	belowIndex := (start + index - 1 + stride)
-	if aboveIndex < 0 || belowIndex > len(pixels) { return peakAlpha, false }
+	if aboveIndex < 0 || belowIndex > len(pixels) {
+		return peakAlpha, false
+	}
 
 	// "in stem" heuristic
- 	pixAbove := (pixels[aboveIndex - 1] > 0 || pixels[aboveIndex] > 0 || pixels[aboveIndex + 1] > 0)
-	pixBelow := (pixels[belowIndex - 1] > 0 || pixels[belowIndex] > 0 || pixels[belowIndex + 1] > 0)
-	if !pixAbove || !pixBelow { return peakAlpha, false }
+	pixAbove := (pixels[aboveIndex-1] > 0 || pixels[aboveIndex] > 0 || pixels[aboveIndex+1] > 0)
+	pixBelow := (pixels[belowIndex-1] > 0 || pixels[belowIndex] > 0 || pixels[belowIndex+1] > 0)
+	if !pixAbove || !pixBelow {
+		return peakAlpha, false
+	}
 
 	// handle the edge case of two-pixel stem
-	if index >= 3 && row[index] == 0 && row[index - 2] != 0 && row[index - 3] == 0 {
+	if index >= 3 && row[index] == 0 && row[index-2] != 0 && row[index-3] == 0 {
 		return 255, true // two-pix-stem swap is necessary!
 	}
 
@@ -314,9 +358,15 @@ func (self *FauxRasterizer) extraWidthRowAscend(row []uint8, index int) (int, ui
 	prevAlpha := uint8(0)
 	for ; index < len(row); index++ {
 		currAlpha := row[index]
-		if currAlpha == prevAlpha { continue }
-		if currAlpha  < prevAlpha { return index, peakAlpha }
-		if currAlpha  > peakAlpha { peakAlpha = currAlpha }
+		if currAlpha == prevAlpha {
+			continue
+		}
+		if currAlpha < prevAlpha {
+			return index, peakAlpha
+		}
+		if currAlpha > peakAlpha {
+			peakAlpha = currAlpha
+		}
 		prevAlpha = currAlpha
 	}
 	return 0, 0
@@ -332,7 +382,7 @@ func (self *FauxRasterizer) extraWidthRowFall(row []uint8, index int, peakAlpha 
 	}
 
 	peakAlphaIndex := index - 1
-	realPeakAlpha  := row[peakAlphaIndex]
+	realPeakAlpha := row[peakAlphaIndex]
 	for n := uint16(0); n < whole; n++ {
 		currAlpha := row[index]
 		if currAlpha >= peakAlpha {
@@ -347,27 +397,33 @@ func (self *FauxRasterizer) extraWidthRowFall(row []uint8, index int, peakAlpha 
 	// two-pixel-stem swap correction
 	if twoPixSwap {
 		row[peakAlphaIndex] = peakAlpha
-		row[index - 1] = realPeakAlpha
+		row[index-1] = realPeakAlpha
 		self.xwidthTail[0] = realPeakAlpha
 		peakAlpha = realPeakAlpha
 	}
 
 	// we are done with the whole width peak part. now... what's this?
 	mod := self.xwidthTailMod
-	if whole > 1 { self.backfixTail(whole) }
+	if whole > 1 {
+		self.backfixTail(whole)
+	}
 
 	// prepare variables to propagate the tail
-	tailIndex   := uint16(0)
-	prevAlpha   := peakAlpha
+	tailIndex := uint16(0)
+	prevAlpha := peakAlpha
 	prevTailAdd := peakAlpha
-	if twoPixSwap { tailIndex = 1 }
+	if twoPixSwap {
+		tailIndex = 1
+	}
 
 	// propagate the tail
 	for index < len(row) {
 		tailAlpha := self.xwidthTail[tailIndex]
-		newAlpha  := self.interpolateForExtraWidth(prevAlpha, tailAlpha)
+		newAlpha := self.interpolateForExtraWidth(prevAlpha, tailAlpha)
 		currAlpha := row[index]
-		if currAlpha >= newAlpha { return index } // not falling anymore
+		if currAlpha >= newAlpha {
+			return index
+		} // not falling anymore
 		row[index] = newAlpha
 
 		// put current alpha on the tail
@@ -404,17 +460,25 @@ func (self *FauxRasterizer) backfixTail(whole uint16) {
 		} else if value < max {
 			self.xwidthTail[i] = max
 		}
-		if i == 0 { return }
+		if i == 0 {
+			return
+		}
 		i -= 1
 	}
 }
 
 // like backfixTail, but without starting at 0
 func (self *FauxRasterizer) backfixTailGen(whole uint16, lastIndex uint16, mod uint16) {
-	if whole <= 1 { return }
+	if whole <= 1 {
+		return
+	}
 	max := self.xwidthTail[lastIndex]
 	whole -= 1
-	if lastIndex > 0 { lastIndex -= 1 } else { lastIndex = mod }
+	if lastIndex > 0 {
+		lastIndex -= 1
+	} else {
+		lastIndex = mod
+	}
 	for {
 		value := self.xwidthTail[lastIndex]
 		if value > max {
@@ -423,8 +487,14 @@ func (self *FauxRasterizer) backfixTailGen(whole uint16, lastIndex uint16, mod u
 			self.xwidthTail[lastIndex] = max
 		}
 		whole -= 1
-		if whole == 0 { return }
-		if lastIndex > 0 { lastIndex -= 1 } else { lastIndex = mod } // can you hear gofmt scream already?
+		if whole == 0 {
+			return
+		}
+		if lastIndex > 0 {
+			lastIndex -= 1
+		} else {
+			lastIndex = mod
+		} // can you hear gofmt scream already?
 	}
 }
 
@@ -434,10 +504,12 @@ func (self *FauxRasterizer) extraWidthRowFractFall(row []uint8, index int, peakA
 	prevAlpha := peakAlpha
 	for ; index < len(row); index++ {
 		currAlpha := row[index]
-		newAlpha  := self.interpolateForExtraWidth(prevAlpha, currAlpha)
-		if currAlpha >= newAlpha { return index }
+		newAlpha := self.interpolateForExtraWidth(prevAlpha, currAlpha)
+		if currAlpha >= newAlpha {
+			return index
+		}
 		row[index] = newAlpha
-		prevAlpha  = currAlpha
+		prevAlpha = currAlpha
 	}
 	return index
 }
@@ -452,8 +524,8 @@ func (self *FauxRasterizer) interpolateForExtraWidth(prevAlpha, currAlpha uint8)
 	// Note2: I also tried to optimize for self.xwidthFract == 0, but it
 	//        did not help, neither here nor earlier in the process. Maybe
 	//        operating with ones and zeros are fast paths anyway.
-	prevWeight := uint8(self.xwidthFract*float64(prevAlpha))
-	currWeight := uint8((1 - self.xwidthFract)*float64(currAlpha))
+	prevWeight := uint8(self.xwidthFract * float64(prevAlpha))
+	currWeight := uint8((1 - self.xwidthFract) * float64(currAlpha))
 	return prevWeight + currWeight
 }
 
@@ -483,7 +555,7 @@ func (self *FauxRasterizer) QuadTo(control, target fixed.Point26_6) {
 func (self *FauxRasterizer) CubeTo(controlA, controlB, target fixed.Point26_6) {
 	cax, cay := self.fixedToFloat32Coords(controlA)
 	cbx, cby := self.fixedToFloat32Coords(controlB)
-	tx , ty  := self.fixedToFloat32Coords(target)
+	tx, ty := self.fixedToFloat32Coords(target)
 	self.rasterizer.CubeTo(cax, cay, cbx, cby, tx, ty)
 }
 

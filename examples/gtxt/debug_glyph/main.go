@@ -6,8 +6,8 @@ import "os"
 import "log"
 import "fmt"
 
-import "github.com/tinne26/etxt"
-import "github.com/tinne26/etxt/emask"
+import "github.com/Kintar/etxt"
+import "github.com/Kintar/etxt/emask"
 
 import "golang.org/x/image/math/fixed"
 
@@ -27,7 +27,9 @@ func main() {
 
 	// parse font
 	font, fontName, err := etxt.ParseFontFrom(os.Args[1])
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Font loaded: %s\n", fontName)
 
 	// create and configure renderer
@@ -41,10 +43,10 @@ func main() {
 	renderer.Traverse("d", fixed.P(0, 0),
 		func(dot fixed.Point26_6, _ rune, glyphIndex etxt.GlyphIndex) {
 			mask := renderer.LoadGlyphMask(glyphIndex, dot)
-			n   := 0
+			n := 0
 			row := 0
 			for n < len(mask.Pix) {
-				fmt.Printf("%03d: %03v\n", row, mask.Pix[n : n + mask.Stride])
+				fmt.Printf("%03d: %03v\n", row, mask.Pix[n:n+mask.Stride])
 				n += mask.Stride
 				row += 1
 			}

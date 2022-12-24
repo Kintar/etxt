@@ -3,7 +3,7 @@
 // to use this package, but if you are rolling your own emask.Rasterizer
 // or ecache.GlyphCacheHandler maybe you find something useful here.
 //
-// [fixed.Int26_6 numbers]: https://github.com/tinne26/etxt/blob/main/docs/fixed-26-6.md
+// [fixed.Int26_6 numbers]: https://github.com/Kintar/etxt/blob/main/docs/fixed-26-6.md
 package efixed
 
 import "math"
@@ -13,21 +13,23 @@ import "golang.org/x/image/math/fixed"
 // Converts a value from its fixed.Int26_6 representation to its float64
 // representation. Conversion is always exact.
 func ToFloat64(value fixed.Int26_6) float64 {
-	return float64(value)/64.0
+	return float64(value) / 64.0
 }
 
 // Converts the given float64 to the nearest fixed.Int26_6.
 // If there's a tie, returned values will be different, and
 // the first will always be smaller than the second.
 //
-// The function will panic if the given float64 is not closely 
+// The function will panic if the given float64 is not closely
 // representable by any fixed.Int26_6 (including Inf, -Inf and NaN).
 func FromFloat64(value float64) (fixed.Int26_6, fixed.Int26_6) {
 	// TODO: overflows may still be possible, and faster conversion
 	//       methods must exist, but go figure
-	candidateA := fixed.Int26_6(value*64)
+	candidateA := fixed.Int26_6(value * 64)
 	diffA := abs64(float64(candidateA)/64.0 - value)
-	if diffA == 0 { return candidateA, candidateA } // fast exact conversion
+	if diffA == 0 {
+		return candidateA, candidateA
+	} // fast exact conversion
 
 	// fast path didn't succeed, proceed now to the more complex cases
 
@@ -60,12 +62,20 @@ func FromFloat64(value float64) (fixed.Int26_6, fixed.Int26_6) {
 	diffC := abs64(float64(candidateC)/64.0 - value)
 
 	if diffA < diffB {
-		if diffA == diffC { return candidateC, candidateA }
-		if diffA  < diffC { return candidateA, candidateA }
+		if diffA == diffC {
+			return candidateC, candidateA
+		}
+		if diffA < diffC {
+			return candidateA, candidateA
+		}
 		return candidateC, candidateC
 	} else if diffB < diffA {
-		if diffB == diffC { panic(value) } // this shouldn't be possible, but just to be safe
-		if diffB  < diffC { return candidateB, candidateB }
+		if diffB == diffC {
+			panic(value)
+		} // this shouldn't be possible, but just to be safe
+		if diffB < diffC {
+			return candidateB, candidateB
+		}
 		return candidateC, candidateC
 	} else { // diffA == diffB
 		return candidateA, candidateB
@@ -76,7 +86,9 @@ func FromFloat64(value float64) (fixed.Int26_6, fixed.Int26_6) {
 // In case of ties, the result closest to zero is selected.
 func FromFloat64RoundToZero(value float64) fixed.Int26_6 {
 	a, b := FromFloat64(value)
-	if a >= 0 { return a } // both values are positive, a is smallest one
+	if a >= 0 {
+		return a
+	} // both values are positive, a is smallest one
 	return b // both values are negative, b is the closest to zero
 }
 
@@ -84,7 +96,9 @@ func FromFloat64RoundToZero(value float64) fixed.Int26_6 {
 // In case of ties, the result furthest away from zero is selected.
 func FromFloat64RoundAwayZero(value float64) fixed.Int26_6 {
 	a, b := FromFloat64(value)
-	if a >= 0 { return b } // both values are positive, b is the biggest one
+	if a >= 0 {
+		return b
+	} // both values are positive, b is the biggest one
 	return a // both values are negative, a is the smallest one
 }
 
@@ -136,40 +150,52 @@ func RoundHalfDown(value fixed.Int26_6) fixed.Int26_6 {
 	return (value + 31) & ^0x3F
 }
 
-// Like [RoundHalfUp](), but rounding away from zero. For the int result, see 
+// Like [RoundHalfUp](), but rounding away from zero. For the int result, see
 // [ToIntHalfAwayZero]() instead.
 func RoundHalfAwayZero(value fixed.Int26_6) fixed.Int26_6 {
-	if value >= 0 { return RoundHalfUp(value) }
+	if value >= 0 {
+		return RoundHalfUp(value)
+	}
 	return RoundHalfDown(value)
 }
 
 // Like [RoundHalfUp](), but directly converting to int.
-func ToIntHalfUp(value fixed.Int26_6) int { return int(value + 32) >> 6 }
+func ToIntHalfUp(value fixed.Int26_6) int { return int(value+32) >> 6 }
 
 // Like [RoundHalfDown](), but directly converting to int.
-func ToIntHalfDown(value fixed.Int26_6) int { return int(value + 31) >> 6 }
+func ToIntHalfDown(value fixed.Int26_6) int { return int(value+31) >> 6 }
 
 // Like [RoundHalfAwayZero](), but directly converting to int.
 func ToIntHalfAwayZero(value fixed.Int26_6) int {
-	if value >= 0 { return ToIntHalfUp(value) }
+	if value >= 0 {
+		return ToIntHalfUp(value)
+	}
 	return ToIntHalfDown(value)
 }
 
 // Quantizes the fractional part of the given value with the given step,
 // rounding up.
 func QuantizeFractUp(value fixed.Int26_6, step uint8) fixed.Int26_6 {
-	if step >= 64 { return RoundHalfUp(value) }
-	if step <=  1 { return value }
+	if step >= 64 {
+		return RoundHalfUp(value)
+	}
+	if step <= 1 {
+		return value
+	}
 
 	fstep := fixed.Int26_6(step)
-	if value >= 0 { // positive values	
+	if value >= 0 { // positive values
 		fract := value & 0x3F
 		mod := fract % fstep
-		if mod == 0 { return value }
+		if mod == 0 {
+			return value
+		}
 		prevFract := fract - mod
 		nextFract := prevFract + fstep
 		if (nextFract - fract) <= (fract - prevFract) { // round up
-			if nextFract >= 64 { return Floor(value) + 64 }
+			if nextFract >= 64 {
+				return Floor(value) + 64
+			}
 			return value + (nextFract - fract)
 		} else {
 			return value - (fract - prevFract)
@@ -177,13 +203,17 @@ func QuantizeFractUp(value fixed.Int26_6, step uint8) fixed.Int26_6 {
 	} else { // negative values
 		fract := (value & 0x3F) | ^0x3F
 		mod := fract % fstep
-		if mod == 0 { return value }
+		if mod == 0 {
+			return value
+		}
 		prevFract := fract - mod - fstep
 		nextFract := prevFract + fstep
 		if (nextFract - fract) <= (fract - prevFract) { // round up
 			return value + (nextFract - fract)
 		} else { // round down
-			if prevFract <= -64 { return Floor(value) }
+			if prevFract <= -64 {
+				return Floor(value)
+			}
 			return value - (fract - prevFract)
 		}
 	}
@@ -192,31 +222,43 @@ func QuantizeFractUp(value fixed.Int26_6, step uint8) fixed.Int26_6 {
 // Quantizes the fractional part of the given value with the given step,
 // rounding down.
 func QuantizeFractDown(value fixed.Int26_6, step uint8) fixed.Int26_6 {
-	if step >= 64 { return RoundHalfDown(value) }
-	if step <=  1 { return value }
+	if step >= 64 {
+		return RoundHalfDown(value)
+	}
+	if step <= 1 {
+		return value
+	}
 
 	fstep := fixed.Int26_6(step)
-	if value >= 0 { // positive values	
+	if value >= 0 { // positive values
 		fract := value & 0x3F
 		mod := fract % fstep
-		if mod == 0 { return value }
+		if mod == 0 {
+			return value
+		}
 		prevFract := fract - mod
 		nextFract := prevFract + fstep
 		if (fract - prevFract) <= (nextFract - fract) { // round down
 			return value - (fract - prevFract)
 		} else { // round up
-			if nextFract >= 64 { return Floor(value) + 64 }
+			if nextFract >= 64 {
+				return Floor(value) + 64
+			}
 			return value + (nextFract - fract)
 		}
 	} else { // negative values
 		fract := (value & 0x3F) | ^0x3F
 		mod := fract % fstep
-		if mod == 0 { return value }
+		if mod == 0 {
+			return value
+		}
 		prevFract := fract - mod - fstep
 		nextFract := prevFract + fstep
 		if (fract - prevFract) <= (nextFract - fract) { // round down
-			if prevFract <= -64 { return Floor(value) }
-			return value - (fract - prevFract)	
+			if prevFract <= -64 {
+				return Floor(value)
+			}
+			return value - (fract - prevFract)
 		} else { // round up
 			return value + (nextFract - fract)
 		}
@@ -225,6 +267,8 @@ func QuantizeFractDown(value fixed.Int26_6, step uint8) fixed.Int26_6 {
 
 // Doesn't care about NaNs and general floating point quirkiness.
 func abs64(value float64) float64 {
-	if value >= 0 { return value }
+	if value >= 0 {
+		return value
+	}
 	return -value
 }

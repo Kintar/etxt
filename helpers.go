@@ -6,7 +6,7 @@ import "image"
 import "golang.org/x/image/math/fixed"
 import "golang.org/x/image/font/sfnt"
 
-import "github.com/tinne26/etxt/ecache"
+import "github.com/Kintar/etxt/ecache"
 
 // This file contains many helper types, wrappers, aliases and
 // other minor elements required to make this whole package work.
@@ -24,7 +24,7 @@ type Font = sfnt.Font
 // Support for glyph indices (and not only runes), therefore, is important
 // in order to make renderers usable with [text shapers] and complex scripts.
 //
-// [text shapers]: https://github.com/tinne26/etxt/blob/main/docs/shaping.md
+// [text shapers]: https://github.com/Kintar/etxt/blob/main/docs/shaping.md
 type GlyphIndex = sfnt.GlyphIndex
 
 // Text alignment types.
@@ -53,10 +53,12 @@ const (
 // left-to-right or right-to-left.
 //
 // Directions can be casted directly to [unicode/bidi] directions:
-//   bidi.Direction(etxt.LeftToRight).
+//
+//	bidi.Direction(etxt.LeftToRight).
 //
 // [unicode/bidi]: https://pkg.go.dev/golang.org/x/text/unicode/bidi
 type Direction int8
+
 const (
 	LeftToRight Direction = iota
 	RightToLeft
@@ -69,7 +71,9 @@ const (
 // you need to handle those errors, see [ecache.NewDefaultCache]() instead.
 func NewDefaultCache(maxBytes int) *ecache.DefaultCache {
 	cache, err := ecache.NewDefaultCache(maxBytes)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 	return cache
 }
 
@@ -77,15 +81,19 @@ func NewDefaultCache(maxBytes int) *ecache.DefaultCache {
 // If you need to use the fixed.Int26_6 values directly and would like more
 // context on them, read [this document]. Otherwise, you can obtain RectSize
 // dimensions as int values like this:
-//    rect   := txtRenderer.SelectionRect(text)
-//    width  := rect.Width.Ceil()
-//    height := rect.Height.Ceil()
 //
-// [this document]: https://github.com/tinne26/etxt/blob/main/docs/fixed-26-6.md
-type RectSize struct { Width fixed.Int26_6 ; Height fixed.Int26_6 }
+//	rect   := txtRenderer.SelectionRect(text)
+//	width  := rect.Width.Ceil()
+//	height := rect.Height.Ceil()
+//
+// [this document]: https://github.com/Kintar/etxt/blob/main/docs/fixed-26-6.md
+type RectSize struct {
+	Width  fixed.Int26_6
+	Height fixed.Int26_6
+}
 
 // Returns the RectSize as an image.Rectangle with origin at (0, 0).
-// 
+//
 // Ebitengine and other projects often expect image.Rectangle objects
 // as arguments in their API calls, so this method is offered as a
 // handy conversion shortcut.

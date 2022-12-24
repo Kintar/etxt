@@ -21,12 +21,12 @@ import "errors"
 // or expected to be used under heavily concurrent scenarios), it has
 // memory bounds and uses random sampling for evicting entries.
 type DefaultCache struct {
-	cachedMasks map[[3]uint64]*CachedMaskEntry
-	rng *rand.Rand
-	spaceBytesLeft uint32
+	cachedMasks     map[[3]uint64]*CachedMaskEntry
+	rng             *rand.Rand
+	spaceBytesLeft  uint32
 	lowestBytesLeft uint32
-	byteSizeLimit uint32
-	mutex sync.RWMutex
+	byteSizeLimit   uint32
+	mutex           sync.RWMutex
 }
 
 // Creates a new cache bounded by the given size.
@@ -41,19 +41,21 @@ func NewDefaultCache(maxByteSize int) (*DefaultCache, error) {
 	}
 
 	randBytes := make([]byte, 8)
-	_, err := crand.Read(randBytes)// spec: n == len(b) iif err == nil
-	if err != nil { return nil, err }
+	_, err := crand.Read(randBytes) // spec: n == len(b) iif err == nil
+	if err != nil {
+		return nil, err
+	}
 	seed := int64(0)
 	for _, randByte := range randBytes {
 		seed = (seed | int64(randByte)) << 8
 	}
 
-	return &DefaultCache {
-		cachedMasks: make(map[[3]uint64]*CachedMaskEntry, 128),
-		spaceBytesLeft: uint32(maxByteSize),
+	return &DefaultCache{
+		cachedMasks:     make(map[[3]uint64]*CachedMaskEntry, 128),
+		spaceBytesLeft:  uint32(maxByteSize),
 		lowestBytesLeft: uint32(maxByteSize),
-		byteSizeLimit: uint32(maxByteSize),
-		rng: rand.New(rand.NewSource(seed)),
+		byteSizeLimit:   uint32(maxByteSize),
+		rng:             rand.New(rand.NewSource(seed)),
 	}, nil
 }
 
@@ -68,7 +70,7 @@ func (self *DefaultCache) removeRandEntry(hotness uint32, instant uint32) uint32
 	self.mutex.RLock()
 	var selectedKey [3]uint64
 	lowestHotness := ^uint32(0)
-	samplesTaken  := 0
+	samplesTaken := 0
 	for key, cachedMaskEntry := range self.cachedMasks {
 		currHotness := cachedMaskEntry.Hotness(instant)
 		// on lower hotness, update selected eviction target
@@ -79,7 +81,9 @@ func (self *DefaultCache) removeRandEntry(hotness uint32, instant uint32) uint32
 
 		// break if we already took enough samples
 		samplesTaken += 1
-		if samplesTaken >= SampleSize { break }
+		if samplesTaken >= SampleSize {
+			break
+		}
 	}
 	self.mutex.RUnlock()
 
@@ -111,11 +115,15 @@ func (self *DefaultCache) PassMask(key [3]uint64, mask GlyphMask) {
 		missingSpace := maskEntry.ByteSize - spaceBytesLeft
 		for i := 0; i < MaxMakeRoomAttempts; i++ {
 			freedSpace += self.removeRandEntry(hotness, instant)
-			if freedSpace >= missingSpace { goto roomMade }
+			if freedSpace >= missingSpace {
+				goto roomMade
+			}
 		}
 
 		// we didn't make enough room for the new entry. desist.
-		if freedSpace != 0 { atomic.AddUint32(&self.spaceBytesLeft, freedSpace) }
+		if freedSpace != 0 {
+			atomic.AddUint32(&self.spaceBytesLeft, freedSpace)
+		}
 		return
 	}
 
@@ -123,11 +131,17 @@ roomMade:
 	// add the mask to the cache
 	self.mutex.Lock()
 	defer self.mutex.Unlock()
-	if freedSpace != 0 { atomic.AddUint32(&self.spaceBytesLeft, freedSpace) }
+	if freedSpace != 0 {
+		atomic.AddUint32(&self.spaceBytesLeft, freedSpace)
+	}
 	_, maskAlreadyExists := self.cachedMasks[key]
-	if maskAlreadyExists { return }
-	if atomic.LoadUint32(&self.spaceBytesLeft) < maskEntry.ByteSize { return }
-	newLeft := atomic.AddUint32(&self.spaceBytesLeft, ^uint32(maskEntry.ByteSize - 1))
+	if maskAlreadyExists {
+		return
+	}
+	if atomic.LoadUint32(&self.spaceBytesLeft) < maskEntry.ByteSize {
+		return
+	}
+	newLeft := atomic.AddUint32(&self.spaceBytesLeft, ^uint32(maskEntry.ByteSize-1))
 	if newLeft < atomic.LoadUint32(&self.lowestBytesLeft) {
 		atomic.StoreUint32(&self.lowestBytesLeft, newLeft)
 	}
@@ -154,7 +168,9 @@ func (self *DefaultCache) GetMask(key [3]uint64) (GlyphMask, bool) {
 	self.mutex.RLock()
 	entry, found := self.cachedMasks[key]
 	self.mutex.RUnlock()
-	if !found { return nil, false }
+	if !found {
+		return nil, false
+	}
 	entry.IncreaseAccessCount()
 	return entry.Mask, true
 }
@@ -165,5 +181,5 @@ func (self *DefaultCache) GetMask(key [3]uint64) (GlyphMask, bool) {
 // renderers.
 func (self *DefaultCache) NewHandler() *DefaultCacheHandler {
 	var zeroKey [3]uint64
-	return &DefaultCacheHandler { cache: self, activeKey: zeroKey }
+	return &DefaultCacheHandler{cache: self, activeKey: zeroKey}
 }

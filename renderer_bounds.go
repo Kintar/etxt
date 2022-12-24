@@ -2,7 +2,7 @@ package etxt
 
 import "golang.org/x/image/math/fixed"
 
-import "github.com/tinne26/etxt/efixed"
+import "github.com/Kintar/etxt/efixed"
 
 // This file contains the definitions of the text and glyph
 // bounding functions for Renderer objects.
@@ -26,40 +26,56 @@ func (self *Renderer) SelectionRect(text string) RectSize {
 	// through individual glyph control box union, very technical to
 	// understand in all its subtleties)
 
-	if text == "" { return RectSize{} }
+	if text == "" {
+		return RectSize{}
+	}
 	width := fixed.Int26_6(0)
-	absX  := fixed.Int26_6(0)
+	absX := fixed.Int26_6(0)
 	lineBreaksOnly := true
 	measureFn :=
 		func(currentDot fixed.Point26_6, codePoint rune, _ GlyphIndex) {
 			absX = fixedAbs(currentDot.X)
-			if absX > width { width = absX }
-			if codePoint != '\n' { lineBreaksOnly = false }
+			if absX > width {
+				width = absX
+			}
+			if codePoint != '\n' {
+				lineBreaksOnly = false
+			}
 		}
 
 	// traverse the string
 	vAlign, hAlign := self.tempMeasuringStart()
 	dot := self.Traverse(text, fixed.Point26_6{}, measureFn)
 	absX = fixedAbs(dot.X)
-	if absX > width { width = absX }
+	if absX > width {
+		width = absX
+	}
 	self.tempMeasuringEnd(vAlign, hAlign)
 
 	// obtain height and return
-	if self.metrics == nil { self.updateMetrics() }
+	if self.metrics == nil {
+		self.updateMetrics()
+	}
 	height := fixedAbs(dot.Y)
-	if !lineBreaksOnly { height += self.metrics.Height }
-	return RectSize{ width, height }
+	if !lineBreaksOnly {
+		height += self.metrics.Height
+	}
+	return RectSize{width, height}
 }
 
 // Same as [Renderer.SelectionRect](), but taking a slice of glyph indices
 // instead of a string.
 func (self *Renderer) SelectionRectGlyphs(glyphIndices []GlyphIndex) RectSize {
-	if len(glyphIndices) == 0 { return RectSize{} }
+	if len(glyphIndices) == 0 {
+		return RectSize{}
+	}
 	vAlign, hAlign := self.tempMeasuringStart()
 	dot := self.TraverseGlyphs(glyphIndices, fixed.Point26_6{}, func(fixed.Point26_6, GlyphIndex) {})
 	self.tempMeasuringEnd(vAlign, hAlign)
-	if self.metrics == nil { self.updateMetrics() }
-	return RectSize{ fixedAbs(dot.X), self.metrics.Height }
+	if self.metrics == nil {
+		self.updateMetrics()
+	}
+	return RectSize{fixedAbs(dot.X), self.metrics.Height}
 }
 
 // During selection rect measuring, using certain aligns like the centered
@@ -86,30 +102,42 @@ func (self *Renderer) tempMeasuringEnd(origVertAlign VertAlign, origHorzAlign Ho
 // Line breaks are always considered for height, whether they are leading,
 // trailing, or even if the input text only contains line breaks.
 func (self *Renderer) textHeight(text string) fixed.Int26_6 {
-	if text == "" { return 0 }
+	if text == "" {
+		return 0
+	}
 
 	// count line breaks
 	lineBreakCount := 0
 	for _, codePoint := range text {
-		if codePoint == '\n' { lineBreakCount += 1 }
+		if codePoint == '\n' {
+			lineBreakCount += 1
+		}
 	}
 
 	// handle simple no line breaks case
-	if self.metrics == nil { self.updateMetrics() }
-	if lineBreakCount == 0 { return self.metrics.Height }
+	if self.metrics == nil {
+		self.updateMetrics()
+	}
+	if lineBreakCount == 0 {
+		return self.metrics.Height
+	}
 
 	// we have line breaks, get line advance
 	lineAdvance := self.GetLineAdvance()
-	if lineAdvance < 0 { lineAdvance = -lineAdvance }
-	
+	if lineAdvance < 0 {
+		lineAdvance = -lineAdvance
+	}
+
 	lineAdvance = efixed.QuantizeFractUp(lineAdvance, self.vertQuantStep)
-	advance := fixed.Int26_6(lineBreakCount)*lineAdvance
+	advance := fixed.Int26_6(lineBreakCount) * lineAdvance
 	return self.metrics.Height + advance
 }
 
 // --- helper methods ---
 
 func fixedAbs(x fixed.Int26_6) fixed.Int26_6 {
-	if x >= 0 { return x }
+	if x >= 0 {
+		return x
+	}
 	return -x
 }

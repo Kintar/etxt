@@ -12,7 +12,9 @@ import "golang.org/x/image/math/fixed"
 const rastBenchSeed = int64(0) // use 0 for PID-based seed
 func makeRng() *rand.Rand {
 	seed := rastBenchSeed
-	if seed == 0 { seed = int64(os.Getpid()) }
+	if seed == 0 {
+		seed = int64(os.Getpid())
+	}
 	return rand.New(rand.NewSource(seed))
 }
 
@@ -24,7 +26,9 @@ func BenchmarkStdRast(b *testing.B) {
 			shape := randomShape(rng, 16, size, size)
 			segments := shape.Segments()
 			_, err := Rasterize(segments, rast, fixed.Point26_6{})
-			if err != nil { log.Fatalf("rasterization error: %s", err.Error()) }
+			if err != nil {
+				log.Fatalf("rasterization error: %s", err.Error())
+			}
 		}
 	}
 }
@@ -37,7 +41,9 @@ func BenchmarkEdgeRast(b *testing.B) {
 			shape := randomShape(rng, 16, size, size)
 			segments := shape.Segments()
 			_, err := Rasterize(segments, rast, fixed.Point26_6{})
-			if err != nil { log.Fatalf("rasterization error: %s", err.Error()) }
+			if err != nil {
+				log.Fatalf("rasterization error: %s", err.Error())
+			}
 		}
 	}
 }

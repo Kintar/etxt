@@ -5,7 +5,7 @@ import "path/filepath"
 import "log"
 import "fmt"
 
-import "github.com/tinne26/etxt"
+import "github.com/Kintar/etxt"
 
 // Must be compiled with '-tags gtxt'.
 // This example expects a path to a font directory as the first
@@ -22,7 +22,9 @@ func main() {
 
 	// print given font directory
 	fontDir, err := filepath.Abs(os.Args[1])
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Reading font directory: %s\n", fontDir)
 
 	// create font library

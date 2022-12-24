@@ -10,9 +10,9 @@ func TestDefaultCacheConsistency(t *testing.T) {
 	// while changing text positioning and fonts, and then doing
 	// the same with caching to ensure that the results are the
 	// same
-	targetNoCache  := image.NewRGBA(image.Rect(0, 0, 256, 128))
+	targetNoCache := image.NewRGBA(image.Rect(0, 0, 256, 128))
 	targetYesCache := image.NewRGBA(image.Rect(0, 0, 256, 128))
-	cache := NewDefaultCache(8*1024*1024) // 8MiB cache
+	cache := NewDefaultCache(8 * 1024 * 1024) // 8MiB cache
 	cacheHandler := cache.NewHandler()
 	renderer := NewStdRenderer()
 	renderer.SetAlign(YCenter, XCenter)

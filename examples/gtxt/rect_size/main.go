@@ -13,20 +13,20 @@ import "math/rand"
 import "time"
 import "strings"
 
-import "github.com/tinne26/etxt"
+import "github.com/Kintar/etxt"
 
 // Must be compiled with '-tags gtxt'
 
 func main() {
 	// we want random sentences in order to find the text size dynamically,
 	// so we start declaring different text fragments to combine later
-	who  := []string {
+	who := []string{
 		"my doggy", "methuselah", "the king", "the queen", "mr. skywalker",
 		"your little pony", "my banana", "gopher", "jigglypuff", "evil jin",
 		"the genius programmer", "your boyfriend", "the last samurai",
 		"the cute robot", "your ancestor's ghost",
 	}
-	what := []string {
+	what := []string{
 		"climbs a tree", "writes a book", "stares at you", "commissions naughty art",
 		"smiles", "takes scenery pics", "pays the bill", "practices times tables",
 		"prays", "runs to take cover", "joins the chat", "downvotes your post",
@@ -35,7 +35,7 @@ func main() {
 		"spies the neighbours", "solves the hardest equation", "discusses geopolitics",
 		"gets mad at you for crossing the street",
 	}
-	how := []string {
+	how := []string{
 		"while dancing", "in style", "while undressing", "while getting high",
 		"maniacally", "early in the morning", "right at the last moment",
 		"as the world ends", "without much fuss", "bare-chested", "periodically",
@@ -52,11 +52,13 @@ func main() {
 
 	// parse font
 	font, fontName, err := etxt.ParseFontFrom(os.Args[1])
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Font loaded: %s\n", fontName)
 
 	// create cache
-	cache := etxt.NewDefaultCache(1024*1024*1024) // 1GB cache
+	cache := etxt.NewDefaultCache(1024 * 1024 * 1024) // 1GB cache
 
 	// create and configure renderer
 	renderer := etxt.NewStdRenderer()
@@ -68,7 +70,7 @@ func main() {
 
 	// generate the random sentences
 	rand.Seed(time.Now().UnixNano())
-	sentences := make([]string, 2 + rand.Intn(6))
+	sentences := make([]string, 2+rand.Intn(6))
 	fmt.Printf("Generating %d sentences...\n", len(sentences))
 	for i := 0; i < len(sentences); i++ {
 		sentence := who[rand.Intn(len(who))] + " "
@@ -81,11 +83,13 @@ func main() {
 	// determine how much space should it take to draw the sentences,
 	// plus a bit of vertical and horizontal padding
 	rect := renderer.SelectionRect(fullText)
-	w, h := rect.Width.Ceil() + 8, rect.Height.Ceil() + 8
+	w, h := rect.Width.Ceil()+8, rect.Height.Ceil()+8
 
 	// create target image and fill it with white
 	outImage := image.NewRGBA(image.Rect(0, 0, w, h))
-	for i := 0; i < w*h*4; i++ { outImage.Pix[i] = 255 }
+	for i := 0; i < w*h*4; i++ {
+		outImage.Pix[i] = 255
+	}
 
 	// set target and draw
 	renderer.SetTarget(outImage)
@@ -93,13 +97,21 @@ func main() {
 
 	// store image as png
 	filename, err := filepath.Abs("gtxt_rect_size.png")
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Output image: %s\n", filename)
 	file, err := os.Create(filename)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = png.Encode(file, outImage)
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = file.Close()
-	if err != nil { log.Fatal(err) }
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Print("Program exited successfully.\n")
 }

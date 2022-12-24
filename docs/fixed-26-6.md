@@ -20,16 +20,16 @@ I don't know and I didn't bother to figure out, but the thing is that since font
 ## Practical advice for operating with fixed precision numbers
 There are two key packages to be aware of when dealing with fixed precision numbers:
 - The Golang package where they are defined, [x/image/math/fixed](https://pkg.go.dev/golang.org/x/image/math/fixed).
-- The [etxt/efixed](https://pkg.go.dev/github.com/tinne26/etxt/efixed) subpackage, which contains a few additional helpful functions.
+- The [etxt/efixed](https://pkg.go.dev/github.com/Kintar/etxt/efixed) subpackage, which contains a few additional helpful functions.
 
 Most of the time, to operate with fixed precision numbers you only need to do one of the following:
-- Use the right rounding function, like [`Ceil()`](https://pkg.go.dev/golang.org/x/image/math/fixed#Int26_6.Ceil), [`Floor()`](https://pkg.go.dev/golang.org/x/image/math/fixed#Int26_6.Floor) and [`efixed.ToIntHalfUp()`](https://pkg.go.dev/github.com/tinne26/etxt/efixed#ToIntHalfUp) and its variants.
+- Use the right rounding function, like [`Ceil()`](https://pkg.go.dev/golang.org/x/image/math/fixed#Int26_6.Ceil), [`Floor()`](https://pkg.go.dev/golang.org/x/image/math/fixed#Int26_6.Floor) and [`efixed.ToIntHalfUp()`](https://pkg.go.dev/github.com/Kintar/etxt/efixed#ToIntHalfUp) and its variants.
 - Convert from/to integer coordinates:
-	- To convert from `int` to `fixed.Int26_6` you can use [`efixed.FromInt()`](https://pkg.go.dev/github.com/tinne26/etxt/efixed#FromInt).
+	- To convert from `int` to `fixed.Int26_6` you can use [`efixed.FromInt()`](https://pkg.go.dev/github.com/Kintar/etxt/efixed#FromInt).
 	- To convert from `fixed.Int26_6` to `int`, you generally round  the `fixed.Int26_6` variable itself with [`Ceil()`](https://pkg.go.dev/golang.org/x/image/math/fixed#Int26_6.Ceil).
 - Convert from/to actual `float64` coordinates:
-	- To convert from `float64` to `fixed.Int26_6` you use [`efixed.FromFloat64()`](https://pkg.go.dev/github.com/tinne26/etxt/efixed#FromFloat64) and its variants.
-	- To convert from `fixed.Int26_6` to `float64` you use [`efixed.ToFloat64()`](https://pkg.go.dev/github.com/tinne26/etxt/efixed#ToFloat64).
+	- To convert from `float64` to `fixed.Int26_6` you use [`efixed.FromFloat64()`](https://pkg.go.dev/github.com/Kintar/etxt/efixed#FromFloat64) and its variants.
+	- To convert from `fixed.Int26_6` to `float64` you use [`efixed.ToFloat64()`](https://pkg.go.dev/github.com/Kintar/etxt/efixed#ToFloat64).
 
 Quick sample snipet:
 ```Golang
