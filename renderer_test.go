@@ -13,9 +13,9 @@ import "testing"
 import "golang.org/x/image/font/sfnt"
 import "golang.org/x/image/math/fixed"
 
-import "github.com/Kintar/etxt/emask"
-import "github.com/Kintar/etxt/esizer"
-import "github.com/Kintar/etxt/efixed"
+import "github.com/kintar/etxt/emask"
+import "github.com/kintar/etxt/esizer"
+import "github.com/kintar/etxt/efixed"
 
 func TestSetGet(t *testing.T) {
 	// mostly tests the renderer default values

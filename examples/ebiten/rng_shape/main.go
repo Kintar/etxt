@@ -13,7 +13,7 @@ import "time"
 
 import "github.com/hajimehoshi/ebiten/v2"
 import "github.com/hajimehoshi/ebiten/v2/ebitenutil"
-import "github.com/Kintar/etxt/emask"
+import "github.com/kintar/etxt/emask"
 import "golang.org/x/image/math/fixed"
 
 // One day I was checking the results of emask.EdgeMarkerRasterizer

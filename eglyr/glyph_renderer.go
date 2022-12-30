@@ -8,11 +8,11 @@
 // etxt renderer methods in order to create a more specialized renderer (in this
 // case, one that improves support for working with glyph indices).
 //
-// [text shaping]: https://github.com/Kintar/etxt/blob/main/docs/shaping.md
+// [text shaping]: https://github.com/kintar/etxt/blob/main/docs/shaping.md
 package eglyr
 
-import "github.com/Kintar/etxt"
-import "github.com/Kintar/etxt/emask"
+import "github.com/kintar/etxt"
+import "github.com/kintar/etxt/emask"
 import "golang.org/x/image/math/fixed"
 
 // A type alias to prevent exposing the internal etxt.Renderer embedded
@@ -61,7 +61,7 @@ func (self *Renderer) Draw(glyphIndices []GlyphIndex, x, y int) fixed.Point26_6 
 //
 // This method is the eglyr equivalent to [etxt.Renderer.DrawFract]().
 //
-// [fractional pixel]: https://github.com/Kintar/etxt/blob/main/docs/fixed-26-6.md
+// [fractional pixel]: https://github.com/kintar/etxt/blob/main/docs/fixed-26-6.md
 func (self *Renderer) DrawFract(glyphIndices []GlyphIndex, x, y fixed.Int26_6) fixed.Point26_6 {
 	if len(glyphIndices) == 0 {
 		return fixed.Point26_6{X: x, Y: y}

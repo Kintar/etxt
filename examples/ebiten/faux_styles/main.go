@@ -7,9 +7,9 @@ import "math"
 import "image/color"
 
 import "github.com/hajimehoshi/ebiten/v2"
-import "github.com/Kintar/etxt"
-import "github.com/Kintar/etxt/emask"
-import "github.com/Kintar/etxt/esizer"
+import "github.com/kintar/etxt"
+import "github.com/kintar/etxt/emask"
+import "github.com/kintar/etxt/esizer"
 
 const MainText = "The lazy programmer jumps\nover the brown codebase."
 

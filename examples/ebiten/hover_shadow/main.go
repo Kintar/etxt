@@ -7,7 +7,7 @@ import "image"
 import "image/color"
 
 import "github.com/hajimehoshi/ebiten/v2"
-import "github.com/Kintar/etxt"
+import "github.com/kintar/etxt"
 import "golang.org/x/image/math/fixed"
 
 const HoverText = "Hover me please!"

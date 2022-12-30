@@ -7,7 +7,7 @@ import "image"
 import "unicode/utf8"
 
 import "golang.org/x/image/math/fixed"
-import "github.com/Kintar/etxt"
+import "github.com/kintar/etxt"
 import "github.com/hajimehoshi/ebiten/v2"
 
 // The explanation of the example is displayed in the example itself

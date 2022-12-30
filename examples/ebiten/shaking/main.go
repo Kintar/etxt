@@ -10,8 +10,8 @@ import "math/rand"
 import "github.com/hajimehoshi/ebiten/v2"
 import "golang.org/x/image/math/fixed"
 
-import "github.com/Kintar/etxt"
-import "github.com/Kintar/etxt/emask"
+import "github.com/kintar/etxt"
+import "github.com/kintar/etxt/emask"
 
 // mmmmm... no, this wasn't social commentary on parenting
 

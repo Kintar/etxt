@@ -12,8 +12,8 @@ import "fmt"
 import "time"
 import "math/rand"
 
-import "github.com/Kintar/etxt"
-import "github.com/Kintar/etxt/eglyr"
+import "github.com/kintar/etxt"
+import "github.com/kintar/etxt/eglyr"
 
 // Must be compiled with '-tags gtxt'
 

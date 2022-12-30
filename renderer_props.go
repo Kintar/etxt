@@ -7,10 +7,10 @@ import "golang.org/x/image/math/fixed"
 import "golang.org/x/image/font"
 import "golang.org/x/image/font/sfnt"
 
-import "github.com/Kintar/etxt/efixed"
-import "github.com/Kintar/etxt/emask"
-import "github.com/Kintar/etxt/ecache"
-import "github.com/Kintar/etxt/esizer"
+import "github.com/kintar/etxt/efixed"
+import "github.com/kintar/etxt/emask"
+import "github.com/kintar/etxt/ecache"
+import "github.com/kintar/etxt/esizer"
 
 // This file contains the Renderer type definition and all the
 // getter and setter methods. Actual operations are split in other
@@ -30,8 +30,8 @@ import "github.com/Kintar/etxt/esizer"
 // If you need more advice or guidance, check the [renderers document]
 // and the [examples].
 //
-// [renderers document]: https://github.com/Kintar/etxt/blob/main/docs/renderer.md
-// [examples]: https://github.com/Kintar/etxt/tree/main/examples
+// [renderers document]: https://github.com/kintar/etxt/blob/main/docs/renderer.md
+// [examples]: https://github.com/kintar/etxt/tree/main/examples
 type Renderer struct {
 	font      *Font
 	target    TargetImage
@@ -159,7 +159,7 @@ func (self *Renderer) GetColor() color.Color { return self.mainColor }
 //
 // For more details, read the [quantization document].
 //
-// [quantization document]: https://github.com/Kintar/etxt/blob/main/docs/quantization.md
+// [quantization document]: https://github.com/kintar/etxt/blob/main/docs/quantization.md
 func (self *Renderer) SetQuantizerStep(horzStep fixed.Int26_6, vertStep fixed.Int26_6) {
 	if horzStep < 1 || horzStep > 64 {
 		panic("horzStep outside the [1, 64] range")
@@ -260,7 +260,7 @@ func (self *Renderer) SetRasterizer(rasterizer emask.Rasterizer) {
 //   - A lowercase latin letter is usually around 48% as tall as
 //     the given size. E.g.: at 16px, "x" will be 7-9px tall.
 //
-// [general reference]: https://github.com/Kintar/etxt/blob/main/docs/px-size.md
+// [general reference]: https://github.com/kintar/etxt/blob/main/docs/px-size.md
 func (self *Renderer) SetSizePx(sizePx int) {
 	self.SetSizePxFract(fixed.Int26_6(sizePx << 6))
 }
@@ -273,7 +273,7 @@ func (self *Renderer) SetSizePx(sizePx int) {
 // Like [Renderer.SetSizePx], but accepting a fractional pixel size in
 // the form of a [26.6 fixed point] integer.
 //
-// [26.6 fixed point]: https://github.com/Kintar/etxt/blob/main/docs/fixed-26-6.md
+// [26.6 fixed point]: https://github.com/kintar/etxt/blob/main/docs/fixed-26-6.md
 func (self *Renderer) SetSizePxFract(sizePx fixed.Int26_6) {
 	if sizePx < 64 {
 		panic("sizePx must be >= 1")
@@ -304,7 +304,7 @@ func (self *Renderer) SetSizePxFract(sizePx fixed.Int26_6) {
 
 // Returns the current font size as a [fixed.Int26_6].
 //
-// [fixed.Int26_6]: https://github.com/Kintar/etxt/blob/main/docs/fixed-26-6.md
+// [fixed.Int26_6]: https://github.com/kintar/etxt/blob/main/docs/fixed-26-6.md
 func (self *Renderer) GetSizePxFract() fixed.Int26_6 {
 	return self.sizePx
 }
@@ -425,7 +425,7 @@ func (self *Renderer) SetHorzAlign(horzAlign HorzAlign) {
 //
 // By default, the renderer's alignment is (etxt.[Baseline], etxt.[Left]).
 //
-// [this image]: https://github.com/Kintar/etxt/blob/main/docs/img/gtxt_aligns.png
+// [this image]: https://github.com/kintar/etxt/blob/main/docs/img/gtxt_aligns.png
 func (self *Renderer) SetAlign(vertAlign VertAlign, horzAlign HorzAlign) {
 	self.SetVertAlign(vertAlign)
 	self.SetHorzAlign(horzAlign)

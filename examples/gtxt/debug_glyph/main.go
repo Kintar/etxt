@@ -6,8 +6,8 @@ import "os"
 import "log"
 import "fmt"
 
-import "github.com/Kintar/etxt"
-import "github.com/Kintar/etxt/emask"
+import "github.com/kintar/etxt"
+import "github.com/kintar/etxt/emask"
 
 import "golang.org/x/image/math/fixed"
 

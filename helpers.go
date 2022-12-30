@@ -6,7 +6,7 @@ import "image"
 import "golang.org/x/image/math/fixed"
 import "golang.org/x/image/font/sfnt"
 
-import "github.com/Kintar/etxt/ecache"
+import "github.com/kintar/etxt/ecache"
 
 // This file contains many helper types, wrappers, aliases and
 // other minor elements required to make this whole package work.
@@ -24,7 +24,7 @@ type Font = sfnt.Font
 // Support for glyph indices (and not only runes), therefore, is important
 // in order to make renderers usable with [text shapers] and complex scripts.
 //
-// [text shapers]: https://github.com/Kintar/etxt/blob/main/docs/shaping.md
+// [text shapers]: https://github.com/kintar/etxt/blob/main/docs/shaping.md
 type GlyphIndex = sfnt.GlyphIndex
 
 // Text alignment types.
@@ -86,7 +86,7 @@ func NewDefaultCache(maxBytes int) *ecache.DefaultCache {
 //	width  := rect.Width.Ceil()
 //	height := rect.Height.Ceil()
 //
-// [this document]: https://github.com/Kintar/etxt/blob/main/docs/fixed-26-6.md
+// [this document]: https://github.com/kintar/etxt/blob/main/docs/fixed-26-6.md
 type RectSize struct {
 	Width  fixed.Int26_6
 	Height fixed.Int26_6

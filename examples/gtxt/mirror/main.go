@@ -13,7 +13,7 @@ import "math/rand"
 
 import "golang.org/x/image/math/fixed"
 
-import "github.com/Kintar/etxt"
+import "github.com/kintar/etxt"
 
 // Must be compiled with '-tags gtxt'
 
@@ -21,7 +21,7 @@ import "github.com/Kintar/etxt"
 //       is not enough like in gtxt/rainbow, so we will be doing some
 //       heavy lifting on our side..! If you aren't familiar with fixed
 //       point types, you might also want to take a look at this doc:
-//       >> https://github.com/Kintar/etxt/blob/main/docs/fixed-26-6.md
+//       >> https://github.com/kintar/etxt/blob/main/docs/fixed-26-6.md
 
 const fontSize = 48
 

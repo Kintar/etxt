@@ -7,9 +7,9 @@ import "image/color"
 
 import "golang.org/x/image/math/fixed"
 import "github.com/hajimehoshi/ebiten/v2"
-import "github.com/Kintar/etxt"
-import "github.com/Kintar/etxt/esizer"
-import "github.com/Kintar/etxt/ecache"
+import "github.com/kintar/etxt"
+import "github.com/kintar/etxt/esizer"
+import "github.com/kintar/etxt/ecache"
 
 // you can play around with these, but it can get out of hand quite easily
 const SpringText = "Bouncy!"

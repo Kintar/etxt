@@ -9,7 +9,7 @@ import "image/color"
 import "image/png"
 import "path/filepath"
 
-import "github.com/Kintar/etxt/emask"
+import "github.com/kintar/etxt/emask"
 
 // An example of how to use emask.Shape in isolation. This has nothing
 // to do with fonts, but it can still come in handy in games. There's

@@ -9,7 +9,7 @@ import "image/color"
 import "github.com/hajimehoshi/ebiten/v2"
 import "golang.org/x/image/math/fixed"
 
-import "github.com/Kintar/etxt"
+import "github.com/kintar/etxt"
 
 type Game struct {
 	txtRenderer *etxt.Renderer

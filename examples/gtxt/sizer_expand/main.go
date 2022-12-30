@@ -10,8 +10,8 @@ import "path/filepath"
 import "log"
 import "fmt"
 
-import "github.com/Kintar/etxt"
-import "github.com/Kintar/etxt/esizer"
+import "github.com/kintar/etxt"
+import "github.com/kintar/etxt/esizer"
 
 // Must be compiled with '-tags gtxt'
 

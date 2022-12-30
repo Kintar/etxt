@@ -3,7 +3,7 @@ package ecache
 import "unsafe"
 import "golang.org/x/image/math/fixed"
 
-import "github.com/Kintar/etxt/emask"
+import "github.com/kintar/etxt/emask"
 
 // A default implementation of [GlyphCacheHandler].
 type DefaultCacheHandler struct {

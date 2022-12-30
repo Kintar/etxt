@@ -3,7 +3,7 @@
 // to use this package, but if you are rolling your own emask.Rasterizer
 // or ecache.GlyphCacheHandler maybe you find something useful here.
 //
-// [fixed.Int26_6 numbers]: https://github.com/Kintar/etxt/blob/main/docs/fixed-26-6.md
+// [fixed.Int26_6 numbers]: https://github.com/kintar/etxt/blob/main/docs/fixed-26-6.md
 package efixed
 
 import "math"

@@ -3,7 +3,7 @@ package esizer
 import "golang.org/x/image/font"
 import "golang.org/x/image/font/sfnt"
 import "golang.org/x/image/math/fixed"
-import "github.com/Kintar/etxt/efixed"
+import "github.com/kintar/etxt/efixed"
 
 // A [Sizer] that behaves like the default one, but with a configurable
 // horizontal padding factor that's added to the kern between glyphs.

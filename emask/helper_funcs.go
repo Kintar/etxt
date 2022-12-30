@@ -4,7 +4,7 @@ import "math"
 import "image"
 
 import "golang.org/x/image/math/fixed"
-import "github.com/Kintar/etxt/efixed"
+import "github.com/kintar/etxt/efixed"
 
 // Given some glyph bounds and a fractional pixel position, it figures out
 // what integer size must be used to fit the bounds, what normalization

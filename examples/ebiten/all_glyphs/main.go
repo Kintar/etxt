@@ -9,8 +9,8 @@ import "image/color"
 import "github.com/hajimehoshi/ebiten/v2"
 import "golang.org/x/image/math/fixed"
 
-import "github.com/Kintar/etxt"
-import "github.com/Kintar/etxt/esizer"
+import "github.com/kintar/etxt"
+import "github.com/kintar/etxt/esizer"
 
 // NOTE: to honor the beauty of fonts, I decided to make this example
 //       resizable and fullscreen-able (press F, but release fast or

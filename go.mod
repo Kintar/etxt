@@ -1,4 +1,4 @@
-module github.com/Kintar/etxt
+module github.com/kintar/etxt
 
 go 1.17
 

@@ -7,7 +7,7 @@ import "log"
 import "fmt"
 
 import "github.com/hajimehoshi/ebiten/v2"
-import "github.com/Kintar/etxt"
+import "github.com/kintar/etxt"
 
 // This example allows you to interactively write text in an Ebitengine
 // program and see how the SelectionRect for the text changes. You

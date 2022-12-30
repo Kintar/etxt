@@ -11,8 +11,8 @@ import "strings"
 import "golang.org/x/image/math/fixed"
 import "golang.org/x/image/font/sfnt"
 
-import "github.com/Kintar/etxt"
-import "github.com/Kintar/etxt/emetric"
+import "github.com/kintar/etxt"
+import "github.com/kintar/etxt/emetric"
 
 // Must be compiled with '-tags gtxt'
 

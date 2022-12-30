@@ -11,7 +11,7 @@ import "log"
 import "fmt"
 import "strings"
 
-import "github.com/Kintar/etxt"
+import "github.com/kintar/etxt"
 import "golang.org/x/text/unicode/bidi"
 import "golang.org/x/image/math/fixed"
 

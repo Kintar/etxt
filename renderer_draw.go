@@ -4,7 +4,7 @@ import "strconv"
 
 import "golang.org/x/image/math/fixed"
 
-import "github.com/Kintar/etxt/emask"
+import "github.com/kintar/etxt/emask"
 
 // Drawing functions for the Renderer type.
 
@@ -31,7 +31,7 @@ func (self *Renderer) Draw(text string, x, y int) fixed.Point26_6 {
 // be fractionally aligned by itself, that still depends on the renderer's
 // [QuantizationMode].
 //
-// [fractional pixel]: https://github.com/Kintar/etxt/blob/main/docs/fixed-26-6.md
+// [fractional pixel]: https://github.com/kintar/etxt/blob/main/docs/fixed-26-6.md
 func (self *Renderer) DrawFract(text string, x, y fixed.Int26_6) fixed.Point26_6 {
 	// safety checks
 	if self.target == nil {

@@ -13,7 +13,7 @@ import "math/rand"
 import "time"
 import "strings"
 
-import "github.com/Kintar/etxt"
+import "github.com/kintar/etxt"
 
 // Must be compiled with '-tags gtxt'
 

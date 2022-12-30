@@ -9,7 +9,7 @@ import "golang.org/x/image/vector"
 import "golang.org/x/image/math/fixed"
 import "golang.org/x/image/font/sfnt"
 
-import "github.com/Kintar/etxt/efixed"
+import "github.com/kintar/etxt/efixed"
 
 // A rasterizer to draw oblique and faux-bold text. For high quality
 // results, please use the font's italic and bold versions directly

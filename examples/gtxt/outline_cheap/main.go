@@ -12,7 +12,7 @@ import "fmt"
 
 import "golang.org/x/image/math/fixed"
 
-import "github.com/Kintar/etxt"
+import "github.com/kintar/etxt"
 
 // Must be compiled with '-tags gtxt'
 

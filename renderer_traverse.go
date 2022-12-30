@@ -2,7 +2,7 @@ package etxt
 
 import "golang.org/x/image/math/fixed"
 
-import "github.com/Kintar/etxt/efixed"
+import "github.com/kintar/etxt/efixed"
 
 // Returns a [Feed] object linked to the Renderer.
 //
@@ -128,8 +128,8 @@ func (self *Renderer) Traverse(text string, xy fixed.Point26_6, operation func(f
 // This method is only relevant when working with complex scripts and using
 // [text shaping].
 //
-// [text shaping]: https://github.com/Kintar/etxt/blob/main/docs/shaping.md
-// [eglyr.Renderer]: https://pkg.go.dev/github.com/Kintar/etxt/eglyr#Renderer
+// [text shaping]: https://github.com/kintar/etxt/blob/main/docs/shaping.md
+// [eglyr.Renderer]: https://pkg.go.dev/github.com/kintar/etxt/eglyr#Renderer
 func (self *Renderer) TraverseGlyphs(glyphIndices []GlyphIndex, xy fixed.Point26_6, operation func(fixed.Point26_6, GlyphIndex)) fixed.Point26_6 {
 	if len(glyphIndices) == 0 {
 		return xy

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 import "github.com/hajimehoshi/ebiten/v2"
-import "github.com/Kintar/etxt"
+import "github.com/kintar/etxt"
 
 // NOTICE: this is the example from the readme, but it's not
 //         easy to use, as it works differently from others and

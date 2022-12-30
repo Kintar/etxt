@@ -5,7 +5,7 @@ import "path/filepath"
 import "log"
 import "fmt"
 
-import "github.com/Kintar/etxt"
+import "github.com/kintar/etxt"
 
 // Must be compiled with '-tags gtxt'.
 // This example expects a path to a font directory as the first

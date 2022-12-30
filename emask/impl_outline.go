@@ -5,7 +5,7 @@ import "image"
 import "golang.org/x/image/math/fixed"
 import "golang.org/x/image/font/sfnt"
 
-import "github.com/Kintar/etxt/efixed"
+import "github.com/kintar/etxt/efixed"
 
 // TODO: extension of joints must be limited through special mechanisms,
 //       otherwise they can go wild on some aberrant cases

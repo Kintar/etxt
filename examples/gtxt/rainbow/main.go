@@ -10,7 +10,7 @@ import "path/filepath"
 import "log"
 import "fmt"
 
-import "github.com/Kintar/etxt"
+import "github.com/kintar/etxt"
 
 import "golang.org/x/image/math/fixed"
 

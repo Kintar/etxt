@@ -25,7 +25,7 @@ import "golang.org/x/image/font/sfnt"
 // rasterizer manually through [EdgeMarkerRasterizer.SetCurveThreshold]() and
 // [EdgeMarkerRasterizer.SetMaxCurveSplits]().
 //
-// [well-documented]: https://github.com/Kintar/etxt/blob/main/docs/rasterize-outlines.md
+// [well-documented]: https://github.com/kintar/etxt/blob/main/docs/rasterize-outlines.md
 type EdgeMarkerRasterizer struct {
 	// All relevant algorithms are implemented inside the unexported
 	// edgeMarker type (see emask/edge_marker.go), except for final

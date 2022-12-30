@@ -8,7 +8,7 @@ import "sync/atomic"
 
 import "testing"
 
-import "github.com/Kintar/etxt/emask"
+import "github.com/kintar/etxt/emask"
 
 import "golang.org/x/image/math/fixed"
 

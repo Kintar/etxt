@@ -2,7 +2,7 @@ package etxt
 
 import "golang.org/x/image/math/fixed"
 
-import "github.com/Kintar/etxt/efixed"
+import "github.com/kintar/etxt/efixed"
 
 // This file contains the definitions of the text and glyph
 // bounding functions for Renderer objects.
